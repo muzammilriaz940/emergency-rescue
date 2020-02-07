@@ -20,13 +20,25 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <include layout="@layout/content_main" />
+    <include layout="@layout/content_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <!--<com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
         app:srcCompat="@android:drawable/ic_dialog_email" />
+
+    fab.setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onClick(View view) {
+    Snackbar.make(view, "Home Activity", Snackbar.LENGTH_LONG)
+    .setAction("Action", null).show();
+    }
+    });
+    -->
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -1,10 +1,14 @@
 package com.example.emergencyrescue;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -43,7 +47,7 @@ public class MainActivity extends CommonActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab = (FloatingActionButton) findViewById(R.id.fab);
         drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -103,6 +107,16 @@ public class MainActivity extends CommonActivity
         });
     }
 
+    protected void createDynamicView(int layOutId, int navId) {
+        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        @SuppressLint("InflateParams")
+        View contentView = inflater.inflate(layOutId, null, false);
+        LinearLayout contentFrame;
+        contentFrame = (LinearLayout) findViewById(R.id.content_frame);
+        contentFrame.addView(contentView);
+        navigationView.setCheckedItem(navId);
+    }
+
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -113,6 +127,7 @@ public class MainActivity extends CommonActivity
             case R.id.nav_history:
                 break;
             case R.id.nav_addContact:
+                startAnimatedActivity(new Intent(getApplicationContext(), AddContact.class));
                 break;
             case R.id.nav_profile:
                 startAnimatedActivity(new Intent(getApplicationContext(), Auth.class));
@@ -130,6 +145,6 @@ public class MainActivity extends CommonActivity
 
     protected void startAnimatedActivity(Intent intent) {
         startActivity(intent);
-        overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+        //overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
     }
 }

@@ -39,19 +39,7 @@ public class Profile extends MainActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //inflate your activity layout here!
-        @SuppressLint("InflateParams")
-        View contentView = inflater.inflate(R.layout.activity_profile, null, false);
-        drawer.addView(contentView, 0);
-        navigationView.setCheckedItem(R.id.nav_profile);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Profile Activity", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        createDynamicView(R.layout.activity_profile, R.id.nav_profile);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         profileName = findViewById(R.id.profileName);
         profileMobile = findViewById(R.id.profileMobile);
@@ -137,7 +125,7 @@ public class Profile extends MainActivity implements
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()) {
-                                        Toast.makeText(Profile.this, "Email Success", Toast.LENGTH_SHORT).show();
+                                        //Toast.makeText(Profile.this, "Email Success", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });

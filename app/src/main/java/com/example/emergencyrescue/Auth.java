@@ -35,19 +35,7 @@ public class Auth extends MainActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        //inflate your activity layout here!
-        @SuppressLint("InflateParams")
-        View contentView = inflater.inflate(R.layout.activity_auth, null, false);
-        drawer.addView(contentView, 0);
-        navigationView.setCheckedItem(R.id.nav_profile);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Auth Activity", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        createDynamicView(R.layout.activity_auth, R.id.nav_profile);
         mDatabase = FirebaseDatabase.getInstance().getReference();
         authPassword = findViewById(R.id.authPassword);
     }
