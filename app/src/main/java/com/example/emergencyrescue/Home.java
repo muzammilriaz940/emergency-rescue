@@ -12,6 +12,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
+import android.widget.CompoundButton;
+import android.widget.Switch;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
@@ -36,7 +38,7 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.List;
 
 public class Home extends MainActivity
-        implements OnMapReadyCallback {
+        implements OnMapReadyCallback, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
 
     GoogleMap mGoogleMap;
     SupportMapFragment mapFrag;
@@ -212,5 +214,45 @@ public class Home extends MainActivity
                 });
         final AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int i = v.getId();
+        if (i == R.id.switch1) {
+            Switch s = (Switch) findViewById(R.id.switch1);
+            if (s != null) {
+                s.setOnCheckedChangeListener(this);
+            }
+        }
+
+        if (i == R.id.requestEmergencyBtn) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Warning");
+            builder.setMessage("This will send emergency notification. Are you sure?");
+            builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //finish();
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    //finish();
+                }
+            });
+            builder.show();
+        }
+    }
+
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        if(isChecked) {
+            buildDialog(this, "Emergency Rescue", "Auto monitoring activated.").show();
+        } else {
+            buildDialog(this, "Emergency Rescue", "Auto monitoring deactivated.").show();
+        }
     }
 }

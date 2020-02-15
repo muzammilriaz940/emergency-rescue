@@ -42,7 +42,7 @@ public class MainActivity extends CommonActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         if(!isConnected(this)) {
-            buildDialog(this).show();
+            buildDialog(this, "No Internet Connection", "Please check your connection.").show();
         }
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

@@ -96,12 +96,10 @@ public class CommonActivity extends AppCompatActivity {
             return false;
     }
 
-    public AlertDialog.Builder buildDialog(Context c) {
-
+    public AlertDialog.Builder buildDialog(Context c, String title, String message) {
         AlertDialog.Builder builder = new AlertDialog.Builder(c);
-        builder.setTitle("No Internet Connection");
-        builder.setMessage("Please check your connection.");
-
+        builder.setTitle(title);
+        builder.setMessage(message);
         builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
 
             @Override
@@ -109,7 +107,6 @@ public class CommonActivity extends AppCompatActivity {
                 //finish();
             }
         });
-
         return builder;
     }
 
