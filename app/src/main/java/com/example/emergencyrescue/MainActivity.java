@@ -3,13 +3,20 @@ package com.example.emergencyrescue;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -17,7 +24,6 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -27,14 +33,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
+
+@SuppressLint("Registered")
 public class MainActivity extends CommonActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
 
     DrawerLayout drawer;
-    FloatingActionButton fab;
     NavigationView navigationView;
-
-    public FirebaseAuth mAuth = FirebaseAuth.getInstance();;
+    private static final String TAG = "G-Force";
+    public FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
 
     @Override
@@ -44,67 +52,70 @@ public class MainActivity extends CommonActivity
         if(!isConnected(this)) {
             buildDialog(this, "No Internet Connection", "Please check your connection.").show();
         }
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-//        fab = (FloatingActionButton) findViewById(R.id.fab);
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
-        navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         String userId = user.getUid();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
         reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                String userName = dataSnapshot.child("name").getValue().toString();
-                String userMobile = dataSnapshot.child("mobile").getValue().toString();
-                String userType = dataSnapshot.child("userType").getValue().toString();
-                String userBloodGroup = dataSnapshot.child("bloodGroup").getValue().toString();
+                String userName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
+                String userMobile = Objects.requireNonNull(dataSnapshot.child("mobile").getValue()).toString();
+                String userType = Objects.requireNonNull(dataSnapshot.child("userType").getValue()).toString();
+                String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
 
-                NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+                NavigationView navigationView = findViewById(R.id.nav_view);
                 View headerView = navigationView.getHeaderView(0);
 
-                TextView navUserName = (TextView) headerView.findViewById(R.id.navUserName);
+                TextView navUserName = headerView.findViewById(R.id.navUserName);
                 navUserName.setText(userName);
 
-                TextView navUserEmail = (TextView) headerView.findViewById(R.id.navUserEmail);
+                TextView navUserEmail = headerView.findViewById(R.id.navUserEmail);
                 navUserEmail.setText(user.getEmail());
 
-                final EditText profileName = (EditText) findViewById(R.id.profileName);
+                final EditText profileName = findViewById(R.id.profileName);
                 if(profileName != null) {
-                    profileName.setText(userName.toString());
+                    profileName.setText(userName);
                 }
 
-                final EditText profileEmail = (EditText) findViewById(R.id.profileEmail);
+                final EditText profileEmail = findViewById(R.id.profileEmail);
                 if(profileEmail != null) {
-                    profileEmail.setText(user.getEmail().toString());
+                    profileEmail.setText(user.getEmail());
                 }
 
-                final EditText profileUserType = (EditText) findViewById(R.id.profileUserType);
+                final EditText profileUserType = findViewById(R.id.profileUserType);
                 if(profileUserType != null) {
-                    profileUserType.setText(userType.toString());
+                    profileUserType.setText(userType);
                 }
 
-                final EditText profileMobile = (EditText) findViewById(R.id.profileMobile);
+                final EditText profileMobile = findViewById(R.id.profileMobile);
                 if(profileMobile != null) {
-                    profileMobile.setText(userMobile.toString());
+                    profileMobile.setText(userMobile);
                 }
 
-                final EditText profileBloodGroup = (EditText) findViewById(R.id.profileBloodGroup);
+                final EditText profileBloodGroup = findViewById(R.id.profileBloodGroup);
                 if(profileBloodGroup != null) {
-                    profileBloodGroup.setText(userBloodGroup.toString());
+                    profileBloodGroup.setText(userBloodGroup);
                 }
             }
             @Override
-            public void onCancelled(DatabaseError databaseError) {
+            public void onCancelled(@NonNull DatabaseError databaseError) {
                 //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+
+        sensorManager.registerListener(this, sensorManager.getDefaultSensor
+                (Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     protected void createDynamicView(int layOutId, int navId) {
@@ -112,12 +123,11 @@ public class MainActivity extends CommonActivity
         @SuppressLint("InflateParams")
         View contentView = inflater.inflate(layOutId, null, false);
         LinearLayout contentFrame;
-        contentFrame = (LinearLayout) findViewById(R.id.content_frame);
+        contentFrame = findViewById(R.id.content_frame);
         contentFrame.addView(contentView);
         navigationView.setCheckedItem(navId);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
@@ -141,7 +151,7 @@ public class MainActivity extends CommonActivity
                 break;
         }
 
-        drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -149,5 +159,40 @@ public class MainActivity extends CommonActivity
     protected void startAnimatedActivity(Intent intent) {
         startActivity(intent);
         //overridePendingTransition(R.anim.slide_in, R.anim.slide_out);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        // getMenuInflater().inflate(R.menu.activity_main, menu);
+        return true;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+        // onAccuracyChanged
+    }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+
+            float xVal = event.values[0];
+            double xValSquare = Math.pow(xVal, 2);
+            float yVal = event.values[1];
+            double yValSquare = Math.pow(yVal, 2);
+            float zVal = event.values[2];
+            double zValSquare = Math.pow(zVal, 2);
+
+            double a = Math.sqrt(xValSquare + yValSquare + zValSquare);
+            double gForceValue = (a / 9.81);
+
+            String gfString = "G-Force : " + gForceValue;
+
+            if(gForceValue > 4) {
+                Log.i(TAG, gfString);
+                Toast.makeText(this, gfString, Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 }

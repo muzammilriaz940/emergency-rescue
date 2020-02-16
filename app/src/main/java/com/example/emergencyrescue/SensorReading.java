@@ -16,17 +16,16 @@ import android.widget.TextView;
 public class SensorReading extends MainActivity implements
         View.OnClickListener, SensorEventListener  {
 
-    private static final String TAG = "G-Force";
     TextView x, y, z, gf;
     String sx, sy, sz, gfString;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createDynamicView(R.layout.activity_sensor_reading, R.id.nav_sensor);
-        x = (TextView) findViewById (R.id.XValue);
-        y = (TextView) findViewById (R.id.YValue);
-        z = (TextView) findViewById (R.id.ZValue);
-        gf = (TextView) findViewById (R.id.gfValue);
+        x = findViewById (R.id.XValue);
+        y = findViewById (R.id.YValue);
+        z = findViewById (R.id.ZValue);
+        gf = findViewById (R.id.gfValue);
 
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
@@ -78,7 +77,6 @@ public class SensorReading extends MainActivity implements
             z.setText(Html.fromHtml(sz));
             if(gForceValue > 4) {
                 gf.setText(Html.fromHtml(gfString));
-                Log.i(TAG, gfString);
             }
         }
     }
