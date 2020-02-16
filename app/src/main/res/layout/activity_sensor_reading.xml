@@ -1,4 +1,4 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -6,9 +6,10 @@
     tools:context=".SensorReading">
 
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_alignParentTop="true"
         android:foregroundGravity="center"
         android:gravity="center"
         android:text="Accelerometer"
@@ -17,9 +18,10 @@
 
     <TextView
         android:id="@+id/XValue"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="50dp"
         android:foregroundGravity="center"
         android:gravity="center"
         android:text="X Value"
@@ -28,9 +30,11 @@
 
     <TextView
         android:id="@+id/YValue"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/XValue"
         android:layout_gravity="center"
+        android:layout_marginTop="50dp"
         android:foregroundGravity="center"
         android:gravity="center"
         android:text="Y Value"
@@ -39,13 +43,28 @@
 
     <TextView
         android:id="@+id/ZValue"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/YValue"
         android:layout_gravity="center"
+        android:layout_marginTop="50dp"
         android:foregroundGravity="center"
         android:gravity="center"
         android:text="Z Value"
         android:textColor="#FF0000"
         android:textSize="18sp" />
 
-</LinearLayout>
+    <TextView
+        android:id="@+id/gfValue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ZValue"
+        android:layout_gravity="center"
+        android:layout_marginTop="50dp"
+        android:foregroundGravity="center"
+        android:gravity="center"
+        android:text="G Force"
+        android:textColor="#FF0000"
+        android:textSize="18sp" />
+
+</RelativeLayout>
