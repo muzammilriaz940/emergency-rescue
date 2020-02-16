@@ -12,6 +12,12 @@
             android:id="@+id/nav_history"
             android:icon="@drawable/ic_history_black_24dp"
             android:title="@string/menu_history" />
+
+        <item
+            android:id="@+id/nav_sensor"
+            android:icon="@drawable/side_nav_bar"
+            android:title="@string/menu_sensor" />
+
         <item
             android:id="@+id/nav_addContact"
             android:icon="@drawable/ic_person_add_black_24dp"

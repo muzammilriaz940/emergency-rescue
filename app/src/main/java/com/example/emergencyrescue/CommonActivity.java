@@ -129,4 +129,6 @@ public class CommonActivity extends AppCompatActivity {
             this.bloodGroup = bloodGroup;
         }
     }
+
+
 }

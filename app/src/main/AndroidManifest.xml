@@ -29,6 +29,12 @@
             android:name=".AddContact"
             android:label="@string/addContactTitle"
             android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
+            android:name=".SensorReading"
+            android:label="@string/sensorTitle"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".Auth"
             android:label="@string/authTitle"
