@@ -11,26 +11,33 @@ import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.util.Log;
+import android.os.CountDownTimer;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.database.IgnoreExtraProperties;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 
 public class CommonActivity extends AppCompatActivity
         implements SensorEventListener {
 
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
-    private static final String TAG = "G-Force";
-    
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,19 +122,6 @@ public class CommonActivity extends AppCompatActivity
         return builder;
     }
 
-    @IgnoreExtraProperties
-    class User {
-
-        public String name,mobile, userType,bloodGroup;
-
-         User(String name, String mobile, String userType, String bloodGroup) {
-            this.name = name;
-            this.mobile = mobile;
-            this.userType = userType;
-            this.bloodGroup = bloodGroup;
-        }
-    }
-
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
         // onAccuracyChanged
@@ -147,11 +141,59 @@ public class CommonActivity extends AppCompatActivity
             double a = Math.sqrt(xValSquare + yValSquare + zValSquare);
             double gForceValue = (a / 9.81);
 
-            String gfString = "G-Force : " + gForceValue;
-
             if(gForceValue > 4) {
-                Log.i(TAG, gfString);
-                Toast.makeText(this, gfString, Toast.LENGTH_SHORT).show();
+                AlertDialog dialog = new AlertDialog.Builder(this)
+                        .setTitle("WARNING (Accident Detected)!")
+                        .setMessage("Please 'Cancel' to abort sending emergency notification.")
+                        .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                sendEmergencyNotification();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, null)
+                        .create();
+                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                    private static final int AUTO_DISMISS_MILLIS = 15000;
+                    @Override
+                    public void onShow(final DialogInterface dialog) {
+                        final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                        final CharSequence negativeButtonText = defaultButton.getText();
+                        new CountDownTimer(AUTO_DISMISS_MILLIS, 100) {
+                            @Override
+                            public void onTick(long millisUntilFinished) {
+                                defaultButton.setText(String.format(
+                                        Locale.getDefault(), "%s (%d)",
+                                        negativeButtonText,
+                                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
+                                ));
+                            }
+                            @Override
+                            public void onFinish() {
+                                if (((AlertDialog) dialog).isShowing()) {
+                                    dialog.dismiss();
+                                    sendEmergencyNotification();
+                                }
+                            }
+                        }.start();
+                    }
+                });
+                dialog.show();
+            }
+        }
+    }
+
+    public void sendEmergencyNotification(){
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        if (user != null) {
+            try {
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue("test");
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue("test");
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("test");
+            } catch (Exception e) {
+                Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }

@@ -89,8 +89,11 @@ public class Profile extends MainActivity implements
         if (!validateForm()) {
             return;
         }
-        User user = new User(name, mobile, userType, bloodGroup);
-        mDatabase.child("users").child(userId).setValue(user);
+        mDatabase.child("Users").child(userId).child("name").setValue(name);
+        mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
+        mDatabase.child("Users").child(userId).child("userType").setValue(userType);
+        mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
+        mDatabase.child("Users").child(userId).child("service").setValue("");
         hideKeyboardFrom(Profile.this);
         View parentLayout = findViewById(R.id.profileRoot);
         Snackbar.make(parentLayout, "Profile Updated", Snackbar.LENGTH_LONG).show();

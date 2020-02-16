@@ -235,7 +235,7 @@ public class Home extends MainActivity
 
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    //finish();
+                    sendEmergencyNotification();
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {

@@ -85,17 +85,17 @@ public class Signup extends CommonActivity implements
                             Intent intent = new Intent(Signup.this, SignIn.class);
                             startActivity(intent);
                         }else{
-                            Toast.makeText(Signup.this, "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Signup.this, "Something went wrong. Please try again.", Toast.LENGTH_LONG).show();
                         }
                     } catch (Exception e) {
                         if (user != null) {
                             user.delete();
                         }
-                        Toast.makeText(Signup.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Signup.this, e.getMessage(), Toast.LENGTH_LONG).show();
                     }
                 } else {
                     hideKeyboardFrom(Signup.this);
-                    Toast.makeText(Signup.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Signup.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_LONG).show();
                 }
 
                 hideProgressDialog();
@@ -151,9 +151,16 @@ public class Signup extends CommonActivity implements
     }
 
     private void addUserDetail(String userId, String name, String mobile, String userType, String bloodGroup) {
-        User user = new User(name, mobile, userType, bloodGroup);
-        mDatabase.child("users").child(userId).setValue(user);
-        mAuth.signOut();
+        try {
+            mDatabase.child("Users").child(userId).child("name").setValue(name);
+            mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
+            mDatabase.child("Users").child(userId).child("userType").setValue(userType);
+            mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
+            mDatabase.child("Users").child(userId).child("service").setValue("");
+            mAuth.signOut();
+        }catch (Exception e) {
+            Toast.makeText(Signup.this, e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
