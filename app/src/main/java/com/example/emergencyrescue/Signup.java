@@ -1,19 +1,15 @@
 package com.example.emergencyrescue;
 
 import androidx.annotation.NonNull;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -21,14 +17,13 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Signup extends CommonActivity implements
         View.OnClickListener{
-    private static final String TAG = "";
     private EditText signUpName;
     private EditText signUpMobile;
     private EditText signUpEmail;
@@ -49,20 +44,20 @@ public class Signup extends CommonActivity implements
         signUpEmail = findViewById(R.id.signUpEmail);
         signUpPassword = findViewById(R.id.signUpPassword);
         signUpBloodGroup = findViewById(R.id.signUpBloodGroup);
-        signUpUserType = (Spinner)findViewById(R.id.signUpUserType);
+        signUpUserType = findViewById(R.id.signUpUserType);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // Spinner element
-        Spinner spinner = (Spinner) findViewById(R.id.signUpUserType);
+        Spinner spinner = signUpUserType;
 
         // Spinner Drop down elements
-        List<String> userType = new ArrayList<String>();
+        List<String> userType = new ArrayList<>();
         userType.add("User");
         userType.add("Responder");
 
         // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, userType);
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userType);
 
         // Drop down layout style - list view with radio button
         dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -84,16 +79,23 @@ public class Signup extends CommonActivity implements
                 if (task.isSuccessful()) {
                     FirebaseUser user = mAuth.getCurrentUser();
                     try {
-                        addUserDetail(user.getUid(), signUpName.getText().toString(), signUpMobile.getText().toString(), signUpUserType.getSelectedItem().toString(), signUpBloodGroup.getText().toString());
-                        clearForm((ViewGroup) findViewById(R.id.signUpRoot));
-                        Intent intent = new Intent(Signup.this, SignIn.class);
-                        startActivity(intent);
+                        if (user != null) {
+                            addUserDetail(user.getUid(), signUpName.getText().toString(), signUpMobile.getText().toString(), signUpUserType.getSelectedItem().toString(), signUpBloodGroup.getText().toString());
+                            clearForm((ViewGroup) findViewById(R.id.signUpRoot));
+                            Intent intent = new Intent(Signup.this, SignIn.class);
+                            startActivity(intent);
+                        }else{
+                            Toast.makeText(Signup.this, "Something went wrong. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
                     } catch (Exception e) {
-                        Log.e(TAG, "addUserDetail Error : ", e);
+                        if (user != null) {
+                            user.delete();
+                        }
+                        Toast.makeText(Signup.this, e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 } else {
                     hideKeyboardFrom(Signup.this);
-                    Toast.makeText(Signup.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Signup.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                 }
 
                 hideProgressDialog();

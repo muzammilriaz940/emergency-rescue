@@ -1,47 +1,51 @@
 package com.example.emergencyrescue;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
-import android.view.LayoutInflater;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
-import com.google.firebase.database.ValueEventListener;
 
+import java.util.Objects;
 
-public class CommonActivity extends AppCompatActivity {
+public class CommonActivity extends AppCompatActivity
+        implements SensorEventListener {
 
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
+    private static final String TAG = "G-Force";
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
+        if (sensorManager != null) {
+            sensorManager.registerListener(this,sensorManager.getDefaultSensor
+                    (Sensor.TYPE_ACCELEROMETER),SensorManager.SENSOR_DELAY_NORMAL);
+        }
+    }
+    
     public void showProgressDialog(String message) {
         if (mProgressDialog == null) {
             mProgressDialog = new ProgressDialog(this);
-            if(message == null || message == ""){
+            if(message == null || message.equals("")){
                 mProgressDialog.setMessage(getString(R.string.Loading));
             }else{
                 mProgressDialog.setMessage(message);
@@ -60,7 +64,9 @@ public class CommonActivity extends AppCompatActivity {
 
     public static void hideKeyboardFrom(Activity activity) {
         InputMethodManager imm = (InputMethodManager) activity.getSystemService(Activity.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(activity.getCurrentFocus().getWindowToken(), 0);
+        if (imm != null) {
+            imm.hideSoftInputFromWindow(Objects.requireNonNull(activity.getCurrentFocus()).getWindowToken(), 0);
+        }
     }
 
     @Override
@@ -84,14 +90,13 @@ public class CommonActivity extends AppCompatActivity {
     public boolean isConnected(Context context) {
 
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netinfo = cm.getActiveNetworkInfo();
+        NetworkInfo netinfo = cm != null ? cm.getActiveNetworkInfo() : null;
 
         if (netinfo != null && netinfo.isConnectedOrConnecting()) {
             android.net.NetworkInfo wifi = cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
             android.net.NetworkInfo mobile = cm.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
 
-            if((mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting())) return true;
-            else return false;
+            return (mobile != null && mobile.isConnectedOrConnecting()) || (wifi != null && wifi.isConnectedOrConnecting());
         } else
             return false;
     }
@@ -111,18 +116,11 @@ public class CommonActivity extends AppCompatActivity {
     }
 
     @IgnoreExtraProperties
-    public class User {
+    class User {
 
-        public String name;
-        public String mobile;
-        public String userType;
-        public String bloodGroup;
+        public String name,mobile, userType,bloodGroup;
 
-        public User() {
-            // Default constructor required for calls to DataSnapshot.getValue(User.class)
-        }
-
-        public User(String name, String mobile, String userType, String bloodGroup) {
+         User(String name, String mobile, String userType, String bloodGroup) {
             this.name = name;
             this.mobile = mobile;
             this.userType = userType;
@@ -130,5 +128,31 @@ public class CommonActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onAccuracyChanged(Sensor arg0, int arg1) {
+        // onAccuracyChanged
+    }
 
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
+
+            float xVal = event.values[0];
+            double xValSquare = Math.pow(xVal, 2);
+            float yVal = event.values[1];
+            double yValSquare = Math.pow(yVal, 2);
+            float zVal = event.values[2];
+            double zValSquare = Math.pow(zVal, 2);
+
+            double a = Math.sqrt(xValSquare + yValSquare + zValSquare);
+            double gForceValue = (a / 9.81);
+
+            String gfString = "G-Force : " + gForceValue;
+
+            if(gForceValue > 4) {
+                Log.i(TAG, gfString);
+                Toast.makeText(this, gfString, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

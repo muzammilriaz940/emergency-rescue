@@ -58,6 +58,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".SignOut" />
+        <activity android:name=".MainActivity" />
+        <activity android:name=".CommonActivity" />
     </application>
 
 </manifest>

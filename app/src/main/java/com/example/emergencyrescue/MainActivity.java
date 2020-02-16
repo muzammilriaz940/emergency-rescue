@@ -3,12 +3,7 @@ package com.example.emergencyrescue;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -16,14 +11,11 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
-
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -35,13 +27,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
-@SuppressLint("Registered")
 public class MainActivity extends CommonActivity
-        implements NavigationView.OnNavigationItemSelectedListener, SensorEventListener {
+        implements NavigationView.OnNavigationItemSelectedListener {
 
     DrawerLayout drawer;
     NavigationView navigationView;
-    private static final String TAG = "G-Force";
     public FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
 
@@ -112,10 +102,6 @@ public class MainActivity extends CommonActivity
                 //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
-
-        sensorManager.registerListener(this, sensorManager.getDefaultSensor
-                (Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     protected void createDynamicView(int layOutId, int navId) {
@@ -166,33 +152,5 @@ public class MainActivity extends CommonActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor arg0, int arg1) {
-        // onAccuracyChanged
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-        if(event.sensor.getType() == Sensor.TYPE_ACCELEROMETER){
-
-            float xVal = event.values[0];
-            double xValSquare = Math.pow(xVal, 2);
-            float yVal = event.values[1];
-            double yValSquare = Math.pow(yVal, 2);
-            float zVal = event.values[2];
-            double zValSquare = Math.pow(zVal, 2);
-
-            double a = Math.sqrt(xValSquare + yValSquare + zValSquare);
-            double gForceValue = (a / 9.81);
-
-            String gfString = "G-Force : " + gForceValue;
-
-            if(gForceValue > 4) {
-                Log.i(TAG, gfString);
-                Toast.makeText(this, gfString, Toast.LENGTH_SHORT).show();
-            }
-        }
     }
 }

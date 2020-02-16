@@ -14,6 +14,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.Objects;
+
 public class SignIn extends CommonActivity implements
         View.OnClickListener  {
     private EditText signInEmail;
@@ -48,12 +50,11 @@ public class SignIn extends CommonActivity implements
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
                             Intent intent = new Intent(SignIn.this, Home.class);
                             startActivity(intent);
                         } else {
                             hideKeyboardFrom(SignIn.this);
-                            Toast.makeText(SignIn.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignIn.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                         }
                         hideProgressDialog();
                     }

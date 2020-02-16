@@ -1,15 +1,9 @@
 package com.example.emergencyrescue;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -17,18 +11,15 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.Objects;
 
 public class Auth extends MainActivity implements
         View.OnClickListener {
 
-    private DatabaseReference mDatabase;
     FirebaseUser user = mAuth.getCurrentUser();
     private EditText authPassword;
 
@@ -36,7 +27,6 @@ public class Auth extends MainActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         createDynamicView(R.layout.activity_auth, R.id.nav_profile);
-        mDatabase = FirebaseDatabase.getInstance().getReference();
         authPassword = findViewById(R.id.authPassword);
     }
 
@@ -59,7 +49,7 @@ public class Auth extends MainActivity implements
         }
 
         AuthCredential credential = EmailAuthProvider
-                .getCredential(user.getEmail().toString(), password); // Current Login Credentials \\
+                .getCredential(Objects.requireNonNull(user.getEmail()), password); // Current Login Credentials \\
         // Prompt the user to re-provide their sign-in credentials
         user.reauthenticate(credential)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -71,7 +61,7 @@ public class Auth extends MainActivity implements
                             startActivity(intent);
                         } else {
                             hideKeyboardFrom(Auth.this);
-                            Toast.makeText(Auth.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Auth.this, Objects.requireNonNull(task.getException()).getMessage(), Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
