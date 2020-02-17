@@ -63,4 +63,6 @@
     <string name="addContactBtn">Add Contacts</string>
     <string name="LoadContactTitle">Select Emergency Contacts</string>
     <string name="saveContactBtn">Done</string>
+    <string name="signUpUserService">Service</string>
+    <string name="profileUserService">Service</string>
 </resources>

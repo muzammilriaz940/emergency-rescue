@@ -154,21 +154,4 @@ public class MainActivity extends CommonActivity
         // getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
-
-    @IgnoreExtraProperties
-    public class Emergency_Contacts {
-
-        public String contactName;
-        public String contactNumber;
-
-        public Emergency_Contacts() {
-            // Default constructor required for calls to DataSnapshot.getValue(User.class)
-        }
-
-        public Emergency_Contacts(String contactName, String contactNumber) {
-
-            this.contactName = contactName;
-            this.contactNumber = contactNumber;
-        }
-    }
 }

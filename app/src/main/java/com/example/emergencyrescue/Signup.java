@@ -29,6 +29,7 @@ public class Signup extends CommonActivity implements
     private EditText signUpEmail;
     private EditText signUpPassword;
     private Spinner signUpUserType;
+    private Spinner signUpUserService;
     private EditText signUpBloodGroup;
 
     private FirebaseAuth mAuth;
@@ -45,6 +46,7 @@ public class Signup extends CommonActivity implements
         signUpPassword = findViewById(R.id.signUpPassword);
         signUpBloodGroup = findViewById(R.id.signUpBloodGroup);
         signUpUserType = findViewById(R.id.signUpUserType);
+        signUpUserService = findViewById(R.id.signUpUserService);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -64,6 +66,24 @@ public class Signup extends CommonActivity implements
 
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
+
+        // Spinner element
+        Spinner spinnerService = signUpUserService;
+
+        // Spinner Drop down elements
+        List<String> userService = new ArrayList<>();
+        userService.add("Ambulance");
+        userService.add("Fire");
+        userService.add("Police");
+
+        // Creating adapter for spinner
+        ArrayAdapter<String> dataAdapterService = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userService);
+
+        // Drop down layout style - list view with radio button
+        dataAdapterService.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+
+        // attaching data adapter to spinner
+        spinnerService.setAdapter(dataAdapterService);
     }
 
     private void createAccount(String email, String password) {
@@ -80,7 +100,7 @@ public class Signup extends CommonActivity implements
                     FirebaseUser user = mAuth.getCurrentUser();
                     try {
                         if (user != null) {
-                            addUserDetail(user.getUid(), signUpName.getText().toString(), signUpMobile.getText().toString(), signUpUserType.getSelectedItem().toString(), signUpBloodGroup.getText().toString());
+                            addUserDetail(user.getUid(), signUpName.getText().toString(), signUpMobile.getText().toString(), signUpUserType.getSelectedItem().toString(), signUpUserService.getSelectedItem().toString(), signUpBloodGroup.getText().toString());
                             clearForm((ViewGroup) findViewById(R.id.signUpRoot));
                             Intent intent = new Intent(Signup.this, SignIn.class);
                             startActivity(intent);
@@ -150,13 +170,17 @@ public class Signup extends CommonActivity implements
         return valid;
     }
 
-    private void addUserDetail(String userId, String name, String mobile, String userType, String bloodGroup) {
+    private void addUserDetail(String userId, String name, String mobile, String userType, String userService, String bloodGroup) {
         try {
             mDatabase.child("Users").child(userId).child("name").setValue(name);
             mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
             mDatabase.child("Users").child(userId).child("userType").setValue(userType);
             mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
-            mDatabase.child("Users").child(userId).child("service").setValue("");
+            if(userType.equals("user")) {
+                mDatabase.child("Users").child(userId).child("service").setValue("");
+            }else{
+                mDatabase.child("Users").child(userId).child("service").setValue(userService);
+            }
             mAuth.signOut();
         }catch (Exception e) {
             Toast.makeText(Signup.this, e.getMessage(), Toast.LENGTH_LONG).show();

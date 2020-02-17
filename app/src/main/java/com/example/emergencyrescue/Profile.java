@@ -29,6 +29,7 @@ public class Profile extends MainActivity implements
     private EditText profileMobile;
     private EditText profileEmail;
     private EditText profileUserType;
+    private EditText profileUserService;
     private EditText profileBloodGroup;
     private String profilePassword;
 
@@ -41,6 +42,7 @@ public class Profile extends MainActivity implements
         profileMobile = findViewById(R.id.profileMobile);
         profileEmail = findViewById(R.id.profileEmail);
         profileUserType = findViewById(R.id.profileUserType);
+        profileUserService = findViewById(R.id.profileUserService);
         profileBloodGroup = findViewById(R.id.profileBloodGroup);
 
         Intent intent = getIntent();
@@ -85,7 +87,7 @@ public class Profile extends MainActivity implements
         return valid;
     }
 
-    private void updateProfile(String userId, String name, String mobile, String userType, String bloodGroup) {
+    private void updateProfile(String userId, String name, String mobile, String userType, String userService, String bloodGroup) {
         if (!validateForm()) {
             return;
         }
@@ -93,7 +95,11 @@ public class Profile extends MainActivity implements
         mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
         mDatabase.child("Users").child(userId).child("userType").setValue(userType);
         mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
-        mDatabase.child("Users").child(userId).child("service").setValue("");
+        if(userType.equals("user")) {
+            mDatabase.child("Users").child(userId).child("service").setValue("");
+        }else{
+            mDatabase.child("Users").child(userId).child("service").setValue(userService);
+        }
         hideKeyboardFrom(Profile.this);
         View parentLayout = findViewById(R.id.profileRoot);
         Snackbar.make(parentLayout, "Profile Updated", Snackbar.LENGTH_LONG).show();
@@ -156,7 +162,7 @@ public class Profile extends MainActivity implements
             if(!TextUtils.isEmpty(profileEmail.getText().toString()) && !TextUtils.isEmpty(profilePassword)){
                 reAuthenticateUser(user.getUid(), profileEmail.getText().toString(), profilePassword);
             }
-            updateProfile(user.getUid(), profileName.getText().toString(), profileMobile.getText().toString(), profileUserType.getText().toString(), profileBloodGroup.getText().toString());
+            updateProfile(user.getUid(), profileName.getText().toString(), profileMobile.getText().toString(), profileUserType.getText().toString(), profileUserService.getText().toString(), profileBloodGroup.getText().toString());
         }
     }
 }

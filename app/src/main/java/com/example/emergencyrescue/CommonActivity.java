@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
+
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -195,6 +197,24 @@ public class CommonActivity extends AppCompatActivity
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
+        }
+    }
+
+
+    @IgnoreExtraProperties
+    public class Emergency_Contacts {
+
+        public String contactName;
+        public String contactNumber;
+
+        public Emergency_Contacts() {
+            // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        }
+
+        public Emergency_Contacts(String contactName, String contactNumber) {
+
+            this.contactName = contactName;
+            this.contactNumber = contactNumber;
         }
     }
 }
