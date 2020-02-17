@@ -12,7 +12,6 @@
         android:layout_gravity="center"
         android:background="@color/colorPrimary"
         android:gravity="center"
-        android:onClick="onClick"
         android:text="Auto Monitoring"
         android:textColor="@android:color/white"
         android:textSize="25sp" />
@@ -37,25 +36,26 @@
 
         <RadioButton
             android:id="@+id/AmbulanceRadioBtn"
-            android:layout_width="150dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:layout_alignParentLeft = "true"
+            android:layout_marginStart="30dp"
             android:checked="true"
             android:text="Ambulance" />
 
         <RadioButton
             android:id="@+id/fireRadioBtn"
-            android:layout_width="150dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:text="Fire" />
+            android:text="Fire"
+            android:textColor="@android:color/white" />
 
         <RadioButton
             android:id="@+id/policeRadioBtn"
-            android:layout_width="150dp"
+            android:layout_width="120dp"
             android:layout_height="wrap_content"
-            android:textColor="@android:color/white"
-            android:text="Police" />
+            android:layout_marginEnd="30dp"
+            android:text="Police"
+            android:textColor="@android:color/white" />
     </RadioGroup>
 
 

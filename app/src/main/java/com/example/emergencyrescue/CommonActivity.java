@@ -8,26 +8,36 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.Vibrator;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Locale;
 import java.util.Objects;
@@ -124,6 +134,23 @@ public class CommonActivity extends AppCompatActivity
         return builder;
     }
 
+    @IgnoreExtraProperties
+    public class Emergency_Contacts {
+
+        public String contactName;
+        public String contactNumber;
+
+        public Emergency_Contacts() {
+            // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        }
+
+        public Emergency_Contacts(String contactName, String contactNumber) {
+
+            this.contactName = contactName;
+            this.contactNumber = contactNumber;
+        }
+    }
+
     @Override
     public void onAccuracyChanged(Sensor arg0, int arg1) {
         // onAccuracyChanged
@@ -144,45 +171,66 @@ public class CommonActivity extends AppCompatActivity
             double gForceValue = (a / 9.81);
 
             if(gForceValue > 4) {
-                AlertDialog dialog = new AlertDialog.Builder(this)
-                        .setTitle("WARNING (Accident Detected)!")
-                        .setMessage("Please 'Cancel' to abort sending emergency notification.")
-                        .setPositiveButton("Send", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                sendEmergencyNotification();
-                            }
-                        })
-                        .setNegativeButton(android.R.string.no, null)
-                        .create();
-                dialog.setOnShowListener(new DialogInterface.OnShowListener() {
-                    private static final int AUTO_DISMISS_MILLIS = 15000;
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = mAuth.getCurrentUser();
+                String userId = user.getUid();
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+                reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
-                    public void onShow(final DialogInterface dialog) {
-                        final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
-                        final CharSequence negativeButtonText = defaultButton.getText();
-                        new CountDownTimer(AUTO_DISMISS_MILLIS, 100) {
-                            @Override
-                            public void onTick(long millisUntilFinished) {
-                                defaultButton.setText(String.format(
-                                        Locale.getDefault(), "%s (%d)",
-                                        negativeButtonText,
-                                        TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
-                                ));
-                            }
-                            @Override
-                            public void onFinish() {
-                                if (((AlertDialog) dialog).isShowing()) {
-                                    dialog.dismiss();
-                                    sendEmergencyNotification();
-                                }
-                            }
-                        }.start();
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        String isAutoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
+                        if(isAutoMonitoring.equals("1")){
+                            acccidentDetect();
+                        }
+                    }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+                        //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
-                dialog.show();
             }
         }
+    }
+
+    public void acccidentDetect(){
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setTitle("WARNING (Accident Detected)!")
+                .setMessage("Please 'Cancel' to abort sending emergency notification.")
+                .setPositiveButton("Send", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendEmergencyNotification();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, null)
+                .create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            private static final int AUTO_DISMISS_MILLIS = 15000;
+            @Override
+            public void onShow(final DialogInterface dialog) {
+                final Button defaultButton = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
+                final CharSequence negativeButtonText = defaultButton.getText();
+                new CountDownTimer(AUTO_DISMISS_MILLIS, 100) {
+                    @Override
+                    public void onTick(long millisUntilFinished) {
+                        defaultButton.setText(String.format(
+                                Locale.getDefault(), "%s (%d)",
+                                negativeButtonText,
+                                TimeUnit.MILLISECONDS.toSeconds(millisUntilFinished) + 1 //add one so it never displays zero
+                        ));
+                    }
+                    @Override
+                    public void onFinish() {
+                        if (((AlertDialog) dialog).isShowing()) {
+                            dialog.dismiss();
+                            sendEmergencyNotification();
+                        }
+                    }
+                }.start();
+            }
+        });
+        dialog.show();
+        // startWarning();
     }
 
     public void sendEmergencyNotification(){
@@ -194,27 +242,28 @@ public class CommonActivity extends AppCompatActivity
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue("test");
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue("test");
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("test");
+                View parentLayout = findViewById(R.id.content_frame);
+                Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
+                //stopWarning();
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
     }
 
+    public void startWarning(){
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(15000);
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.warning);
+        mp.start();
+        mp.setLooping(true);
+    }
 
-    @IgnoreExtraProperties
-    public class Emergency_Contacts {
-
-        public String contactName;
-        public String contactNumber;
-
-        public Emergency_Contacts() {
-            // Default constructor required for calls to DataSnapshot.getValue(User.class)
-        }
-
-        public Emergency_Contacts(String contactName, String contactNumber) {
-
-            this.contactName = contactName;
-            this.contactNumber = contactNumber;
-        }
+    public void stopWarning(){
+        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.cancel();
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.warning);
+        mp.stop();
+        mp.release();
     }
 }

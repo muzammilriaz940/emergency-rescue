@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -23,7 +24,6 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
@@ -62,13 +62,26 @@ public class MainActivity extends CommonActivity
                 String userName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
                 String userMobile = Objects.requireNonNull(dataSnapshot.child("mobile").getValue()).toString();
                 String userType = Objects.requireNonNull(dataSnapshot.child("userType").getValue()).toString();
+                String userService = Objects.requireNonNull(dataSnapshot.child("service").getValue()).toString();
                 String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
-
+                String autoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
+                Switch s = findViewById(R.id.switch1);
+                if(s != null) {
+                    if (autoMonitoring.equals("1")) {
+                        s.setChecked(true);
+                    } else {
+                        s.setChecked(false);
+                    }
+                }
                 NavigationView navigationView = findViewById(R.id.nav_view);
                 View headerView = navigationView.getHeaderView(0);
 
                 TextView navUserName = headerView.findViewById(R.id.navUserName);
-                navUserName.setText(userName);
+                String navName = userName+" - "+userBloodGroup;
+                if(userType.equals("Responder")){
+                    navName = userName+" - "+userService;
+                }
+                navUserName.setText(navName);
 
                 TextView navUserEmail = headerView.findViewById(R.id.navUserEmail);
                 navUserEmail.setText(user.getEmail());
@@ -86,6 +99,11 @@ public class MainActivity extends CommonActivity
                 final EditText profileUserType = findViewById(R.id.profileUserType);
                 if(profileUserType != null) {
                     profileUserType.setText(userType);
+                }
+
+                final EditText profileUserService = findViewById(R.id.profileUserService);
+                if(profileUserService != null) {
+                    profileUserService.setText(userService);
                 }
 
                 final EditText profileMobile = findViewById(R.id.profileMobile);
@@ -154,4 +172,5 @@ public class MainActivity extends CommonActivity
         // getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
     }
+
 }

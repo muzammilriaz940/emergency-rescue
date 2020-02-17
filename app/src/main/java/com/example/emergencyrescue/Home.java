@@ -34,6 +34,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
@@ -53,6 +57,10 @@ public class Home extends MainActivity
         createDynamicView(R.layout.activity_home, R.id.nav_home);
         locationCheck();
         updateCurrentLocation();
+        Switch s = findViewById(R.id.switch1);
+        if (s != null) {
+            s.setOnCheckedChangeListener(this);
+        }
     }
 
     @Override
@@ -220,13 +228,6 @@ public class Home extends MainActivity
     @Override
     public void onClick(View v) {
         int i = v.getId();
-        if (i == R.id.switch1) {
-            Switch s = findViewById(R.id.switch1);
-            if (s != null) {
-                s.setOnCheckedChangeListener(this);
-            }
-        }
-
         if (i == R.id.requestEmergencyBtn) {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setTitle("Warning");
@@ -250,10 +251,15 @@ public class Home extends MainActivity
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        FirebaseUser user = mAuth.getCurrentUser();
+        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+        View parentLayout = findViewById(R.id.content_frame);
         if(isChecked) {
-            buildDialog(this, "Emergency Rescue", "Auto monitoring activated.").show();
+            mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("1");
+            Snackbar.make(parentLayout, "Auto monitoring activated!", Snackbar.LENGTH_LONG).show();
         } else {
-            buildDialog(this, "Emergency Rescue", "Auto monitoring deactivated.").show();
+            mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("0");
+            Snackbar.make(parentLayout, "Auto monitoring deactivated!", Snackbar.LENGTH_LONG).show();
         }
     }
 }
