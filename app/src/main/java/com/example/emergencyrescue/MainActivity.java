@@ -23,6 +23,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
@@ -152,5 +153,22 @@ public class MainActivity extends CommonActivity
         // Inflate the menu; this adds items to the action bar if it is present.
         // getMenuInflater().inflate(R.menu.activity_main, menu);
         return true;
+    }
+
+    @IgnoreExtraProperties
+    public class Emergency_Contacts {
+
+        public String contactName;
+        public String contactNumber;
+
+        public Emergency_Contacts() {
+            // Default constructor required for calls to DataSnapshot.getValue(User.class)
+        }
+
+        public Emergency_Contacts(String contactName, String contactNumber) {
+
+            this.contactName = contactName;
+            this.contactNumber = contactNumber;
+        }
     }
 }

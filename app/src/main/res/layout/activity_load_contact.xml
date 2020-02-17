@@ -3,21 +3,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".AddContact">
+    tools:context=".LoadContact">
 
     <Button
-        android:id="@+id/addContactBtn"
+        android:id="@+id/saveContactBtn"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
-        android:text="@string/addContactBtn" />
+        android:text="@string/saveContactBtn" />
 
     <ListView
-        android:id="@+id/showContactList"
+        android:id="@+id/loadContactList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/addContactBtn"
+        android:layout_above="@id/saveContactBtn"
         android:choiceMode="multipleChoice" />
 
 </RelativeLayout>

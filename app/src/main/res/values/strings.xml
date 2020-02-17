@@ -59,4 +59,8 @@
     <string name="title_activity_android_accelerometer_example">AndroidAccelerometerExample</string>
     <string name="menu_sensor">Sensor Readings</string>
     <string name="sensorTitle">Sensor Readings</string>
+
+    <string name="addContactBtn">Add Contacts</string>
+    <string name="LoadContactTitle">Select Emergency Contacts</string>
+    <string name="saveContactBtn">Done</string>
 </resources>
