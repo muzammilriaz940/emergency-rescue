@@ -49,7 +49,7 @@ public class CommonActivity extends AppCompatActivity
 
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
-
+    AlertDialog dialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -193,7 +193,10 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void acccidentDetect(){
-        AlertDialog dialog = new AlertDialog.Builder(this)
+        if(dialog != null && dialog.isShowing()) {
+            return;
+        }
+        dialog = new AlertDialog.Builder(this)
                 .setTitle("WARNING (Accident Detected)!")
                 .setMessage("Please 'Cancel' to abort sending emergency notification.")
                 .setPositiveButton("Send", new DialogInterface.OnClickListener() {
@@ -202,7 +205,12 @@ public class CommonActivity extends AppCompatActivity
                         sendEmergencyNotification();
                     }
                 })
-                .setNegativeButton(android.R.string.no, null)
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        stopWarning();
+                    }
+                })
                 .create();
         dialog.setOnShowListener(new DialogInterface.OnShowListener() {
             private static final int AUTO_DISMISS_MILLIS = 15000;
@@ -230,7 +238,7 @@ public class CommonActivity extends AppCompatActivity
             }
         });
         dialog.show();
-        // startWarning();
+        startWarning();
     }
 
     public void sendEmergencyNotification(){
@@ -244,7 +252,7 @@ public class CommonActivity extends AppCompatActivity
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("test");
                 View parentLayout = findViewById(R.id.content_frame);
                 Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
-                //stopWarning();
+                stopWarning();
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
