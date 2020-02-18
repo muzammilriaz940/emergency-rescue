@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Objects;
 
-public class SignIn extends MainActivity implements
+public class SignIn extends CommonActivity implements
         View.OnClickListener  {
     private EditText signInEmail;
     private EditText signInPassword;
