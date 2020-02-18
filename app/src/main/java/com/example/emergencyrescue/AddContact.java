@@ -89,14 +89,12 @@ public class AddContact extends MainActivity implements
                         // set message, title, and icon
                         .setTitle("Delete")
                         .setMessage("Do you want to Delete")
-//                            .setIcon(@android:drawable/icon_delete);
 
                         .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                 //your deleting code
-                                //Toast.makeText(AddContact.this,position,Toast.LENGTH_LONG).show();
 
                                 dialog.dismiss();
 
@@ -114,8 +112,6 @@ public class AddContact extends MainActivity implements
                                 dreference.child(contactId).removeValue();
 
                                 /* DELETE LIST POSITIION CHILD */
-
-
 
                             }
 
@@ -141,8 +137,6 @@ public class AddContact extends MainActivity implements
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
-
-                    Toast.makeText(AddContact.this, childSnapshot.child("contactName").getValue(String.class), Toast.LENGTH_SHORT).show();
 
                     String Contactname = childSnapshot.child("contactName").getValue(String.class);
                     String ContactNumber = childSnapshot.child("contactNumber").getValue(String.class);
@@ -255,7 +249,7 @@ public class AddContact extends MainActivity implements
 
                     @Override
                     public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        Toast.makeText(AddContact.this, "Child Moved", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(AddContact.this, "Child Moved", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
