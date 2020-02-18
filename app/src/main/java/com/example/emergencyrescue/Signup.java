@@ -176,6 +176,7 @@ public class Signup extends CommonActivity implements
             mDatabase.child("Users").child(userId).child("mobile").setValue(mobile);
             mDatabase.child("Users").child(userId).child("userType").setValue(userType);
             mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
+            mDatabase.child("Users").child(userId).child("autoMonitoring").setValue("1");
             if(userType.equals("User")) {
                 mDatabase.child("Users").child(userId).child("service").setValue("");
             }else{
