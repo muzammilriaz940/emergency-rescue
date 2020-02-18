@@ -50,6 +50,8 @@ public class CommonActivity extends AppCompatActivity
     @VisibleForTesting
     public ProgressDialog mProgressDialog;
     AlertDialog dialog;
+    Vibrator vibrator;
+    MediaPlayer mp;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -247,9 +249,9 @@ public class CommonActivity extends AppCompatActivity
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         if (user != null) {
             try {
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue("test");
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue("test");
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("test");
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue("JHJs673v45");
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue("12321.654");
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("987893.432");
                 View parentLayout = findViewById(R.id.content_frame);
                 Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
                 stopWarning();
@@ -260,18 +262,19 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void startWarning(){
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.vibrate(15000);
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.warning);
+        mp = MediaPlayer.create(this, R.raw.warning);
         mp.start();
         mp.setLooping(true);
     }
 
     public void stopWarning(){
-        Vibrator vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.cancel();
-        final MediaPlayer mp = MediaPlayer.create(this, R.raw.warning);
+        mp = MediaPlayer.create(this, R.raw.warning);
         mp.stop();
-        mp.release();
+        mp.reset();
+        mp.setLooping(false);
     }
 }

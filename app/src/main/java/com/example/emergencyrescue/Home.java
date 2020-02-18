@@ -36,10 +36,14 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
+import java.util.Objects;
 
 public class Home extends MainActivity
         implements OnMapReadyCallback, View.OnClickListener, CompoundButton.OnCheckedChangeListener {
@@ -54,13 +58,35 @@ public class Home extends MainActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        createDynamicView(R.layout.activity_home, R.id.nav_home);
-        locationCheck();
-        updateCurrentLocation();
-        Switch s = findViewById(R.id.switch1);
-        if (s != null) {
-            s.setOnCheckedChangeListener(this);
-        }
+        String userId = user.getUid();
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                String userType = Objects.requireNonNull(dataSnapshot.child("userType").getValue()).toString();
+                if(userType.equals("Responder")){
+                    createDynamicView(R.layout.activity_home_responder, R.id.nav_home);
+                    locationCheck();
+                    updateCurrentLocation();
+                    Switch s = findViewById(R.id.switchResponder);
+                    if (s != null) {
+                        s.setOnCheckedChangeListener(Home.this);
+                    }
+                }else{
+                    createDynamicView(R.layout.activity_home, R.id.nav_home);
+                    locationCheck();
+                    updateCurrentLocation();
+                    Switch s = findViewById(R.id.switch1);
+                    if (s != null) {
+                        s.setOnCheckedChangeListener(Home.this);
+                    }
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
