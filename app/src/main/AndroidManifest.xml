@@ -67,6 +67,9 @@
         <activity android:name=".SignOut" />
         <activity android:name=".MainActivity" />
         <activity android:name=".CommonActivity" />
+        <activity android:name=".HomeResponder"
+            android:label="@string/homeTitle"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
