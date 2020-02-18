@@ -27,21 +27,20 @@ public class LoadContact extends MainActivity implements
         View.OnClickListener {
 
     private static final String TAG = "";
-    ArrayList<String> listContacts;
+    ArrayList<String> listLoadContacts;
     ListView loadContactList;
     Button saveContactBtn;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mDatabase;
+    private FirebaseAuth mAuthentication;
+    private DatabaseReference mDatabaseReference;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         createDynamicView(R.layout.activity_load_contact, R.id.nav_addContact);
-
-        mAuth = FirebaseAuth.getInstance();
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mAuthentication = FirebaseAuth.getInstance();
+        mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         loadContactList = findViewById(R.id.loadContactList);
         saveContactBtn = (Button) findViewById(R.id.saveContactBtn);
@@ -56,9 +55,9 @@ public class LoadContact extends MainActivity implements
 
                 showProgressDialog("Adding Emergency Contacts");
 
-                FirebaseUser user = mAuth.getCurrentUser();
+                FirebaseUser user = mAuthentication.getCurrentUser();
                 String currentUserId = user.getUid();
-                mDatabase = mDatabase.child("EmergencyContacts").child(currentUserId);
+                mDatabaseReference = mDatabaseReference.child("EmergencyContacts").child(currentUserId);
 
                 for (int j = 0; j < checked.size(); j++) {
                     if (checked.valueAt(j)) {
@@ -76,7 +75,7 @@ public class LoadContact extends MainActivity implements
 
                         try {
 
-                            mDatabase.child(contactId).setValue(EmergCont);
+                            mDatabaseReference.child(contactId).setValue(EmergCont);
                             result = true;
                         }
                         catch (Exception e) {
@@ -88,7 +87,7 @@ public class LoadContact extends MainActivity implements
                 }
 
                 Intent resultIntent = new Intent();
-                resultIntent.putExtra("Return", 1);
+                resultIntent.putExtra("Data", 1);
                 setResult(RESULT_OK,resultIntent);
 
                 if(result == true) {
@@ -101,7 +100,7 @@ public class LoadContact extends MainActivity implements
                             Toast.makeText(LoadContact.this,"Contacts Added Successfully",Toast.LENGTH_SHORT).show();
                             finish();
                         }
-                    }, 5000);
+                    }, 2000);
                 }
                 if(result == false) {
 
@@ -115,7 +114,7 @@ public class LoadContact extends MainActivity implements
 
     private void displayContacts() {
 
-        listContacts = new ArrayList<>();
+        listLoadContacts = new ArrayList<>();
         ContentResolver resolver = getContentResolver();
 
         Cursor cursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null,
@@ -131,13 +130,13 @@ public class LoadContact extends MainActivity implements
                 if(Integer.parseInt(cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.HAS_PHONE_NUMBER))) > 0)
                     num = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 
-                listContacts.add("ID: "+ id + "\n" +
-                                 "Name: " + name + "\n" +
-                                 "Phone No: " + num);
+                listLoadContacts.add("ID: "+ id + "\n" +
+                        "Name: " + name + "\n" +
+                        "Phone No: " + num);
             }
         }
 
-        loadContactList.setAdapter(new ArrayAdapter<>(LoadContact.this,android.R.layout.simple_list_item_multiple_choice,listContacts));
+        loadContactList.setAdapter(new ArrayAdapter<>(LoadContact.this,android.R.layout.simple_list_item_multiple_choice, listLoadContacts));
     }
 
     @Override

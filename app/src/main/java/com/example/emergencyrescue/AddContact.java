@@ -1,8 +1,16 @@
 package com.example.emergencyrescue;
 
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.nfc.Tag;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -11,11 +19,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -24,8 +35,17 @@ public class AddContact extends MainActivity implements
 
     Button addContactBtn;
     ListView showContactList;
-    ArrayList<String> listContacts = new ArrayList<>();
-    DatabaseReference dref;
+    ArrayList<String> listShowContacts = new ArrayList<>();
+    ArrayAdapter<String> adapter = null;
+
+    DatabaseReference dreference;
+    private FirebaseAuth mAddAuthentication;
+    String currentUserId;
+
+    private ValueEventListener mValueListner;
+    private ChildEventListener mChildListner;
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +56,169 @@ public class AddContact extends MainActivity implements
         showContactList = findViewById(R.id.showContactList);
         addContactBtn = (Button) findViewById(R.id.addContactBtn);
 
+        mAddAuthentication = FirebaseAuth.getInstance();
+        FirebaseUser user = mAddAuthentication.getCurrentUser();
+        currentUserId = user.getUid();
+
+        dreference = FirebaseDatabase.getInstance().getReference("EmergencyContacts");
+        dreference = dreference.child(currentUserId);
+
+        showContacts();
+
+
+        /* CODE FOR FETCHING DATA AGAINST USER WHEN USER COME TO ADD CONTACT */
+
+        listShowContacts.removeAll(listShowContacts);
+        adapter = new ArrayAdapter<String>(AddContact.this, android.R.layout.simple_dropdown_item_1line, listShowContacts);
+        showContactList.setAdapter(adapter);
+
+        showContactList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView <?> parent, View view, int position, long id) {
+
+                final String item = (String) parent.getItemAtPosition(position);
+//                    Toast.makeText(AddContact.this,item,Toast.LENGTH_LONG).show();
+
+                AlertDialog diaBox = AskOption(item,position);
+                diaBox.show();
+            }
+
+            private AlertDialog AskOption(final String item, final int position) {
+
+                AlertDialog myQuittingDialogBox = new AlertDialog.Builder(AddContact.this)
+                        // set message, title, and icon
+                        .setTitle("Delete")
+                        .setMessage("Do you want to Delete")
+//                            .setIcon(@android:drawable/icon_delete);
+
+                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+
+                                //your deleting code
+                                //Toast.makeText(AddContact.this,position,Toast.LENGTH_LONG).show();
+
+                                dialog.dismiss();
+
+                                /* DELETE LIST POSITIION CHILD */
+
+                                String[] itemSeparated = item.split("\n");
+
+                                String contactId   = ((itemSeparated[0].split(":"))[1]).trim();
+                                String contactName = ((itemSeparated[1].split(":"))[1]).trim();
+                                String contactNumber  = ((itemSeparated[2].split(":"))[1]).trim();
+
+                                listShowContacts.remove(position);
+                                adapter.notifyDataSetChanged();
+
+                                dreference.child(contactId).removeValue();
+
+                                /* DELETE LIST POSITIION CHILD */
+
+
+
+                            }
+
+                        })
+                        .setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+
+                                dialog.dismiss();
+
+                            }
+                        })
+                        .create();
+
+                return myQuittingDialogBox;
+            }
+
+
+        });
+
+
+        mValueListner = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+
+                    Toast.makeText(AddContact.this, childSnapshot.child("contactName").getValue(String.class), Toast.LENGTH_SHORT).show();
+
+                    String Contactname = childSnapshot.child("contactName").getValue(String.class);
+                    String ContactNumber = childSnapshot.child("contactNumber").getValue(String.class);
+                    String ContactKey = childSnapshot.getKey();
+
+                    listShowContacts.add("ID: " + ContactKey + "\n" + "Name: " + Contactname + "\n" + "Phone No: " + ContactNumber);
+                }
+
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        };
+
+        dreference.addValueEventListener(mValueListner);
+
+        /* CODE FOR FETCHING DATA AGAINST USER WHEN USER COME TO ADD CONTACT */
+
+
+        /* CODE FOR START ACTIVITY LOAD_CONTACT */
+
         addContactBtn.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+
+                dreference.removeEventListener(mValueListner);
                 Intent intent = new Intent(AddContact.this, LoadContact.class);
                 startActivityForResult(intent, 1);
             }
         });
+
+        /* CODE FOR START ACTIVITY LOAD_CONTACT */
     }
+
+
+    private void showContacts() {
+        // Check the SDK version and whether the permission is already granted or not.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
+            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
+        } else {
+            // Android version is lesser than 6.0 or the permission is already granted.
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission is granted
+//                showContacts();
+            } else {
+                Toast.makeText(this, "Until you grant the permission, we canot display the names", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+
+
+    /* CODE TO DESTROY VALUE EVENT LISTENER */
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        dreference.removeEventListener(mValueListner);
+        dreference.removeEventListener(mChildListner);
+    }
+
+    /* CODE TO DESTROY VALUE EVENT LISTENER */
+
+
+    /* THIS CODE RUN WHEN SELECT CONTACT ACTIVITY ENDS */
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -51,45 +227,50 @@ public class AddContact extends MainActivity implements
         if(requestCode == 1){
             if(resultCode == RESULT_OK){
 
-                final ArrayAdapter<String> adapter=new ArrayAdapter<String>(AddContact.this,android.R.layout.simple_dropdown_item_1line,listContacts);
+                listShowContacts.removeAll(listShowContacts);
                 showContactList.setAdapter(adapter);
 
-                dref = FirebaseDatabase.getInstance().getReference("EmergencyContacts");
-
-                dref.addChildEventListener(new ChildEventListener() {
+                mChildListner = new ChildEventListener(){
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
-                        listContacts.add(dataSnapshot.getValue(String.class));
+                        String Contactname = dataSnapshot.child("contactName").getValue(String.class);
+                        String ContactNumber = dataSnapshot.child("contactNumber").getValue(String.class);
+                        String ContactKey = dataSnapshot.getKey();
+
+                        listShowContacts.add("ID: " + ContactKey + "\n" + "Name: " + Contactname + "\n" + "Phone No: " + ContactNumber);
                         adapter.notifyDataSetChanged();
-                        Toast.makeText(AddContact.this, "by zaid", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-                        Toast.makeText(AddContact.this, "Testing by zaid", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
-                        listContacts.remove(dataSnapshot.getValue(String.class));
-                        adapter.notifyDataSetChanged();
+
+//                        listShowContacts.remove(dataSnapshot.getValue(String.class));
+//                        adapter.notifyDataSetChanged();
                     }
 
                     @Override
                     public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
-
+                        Toast.makeText(AddContact.this, "Child Moved", Toast.LENGTH_SHORT).show();
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
-                });
+                };
 
+                dreference.addChildEventListener(mChildListner);
             }
         }
     }
+
+
+    /* THIS CODE RUN WHEN SELECT CONTACT ACTIVITY ENDS */
 
     @Override
     public void onClick(View v) {
