@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -50,8 +51,11 @@ public class Signup extends CommonActivity implements
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
+
+        /* SIGNUP USER TYPE SPINNER */
+
         // Spinner element
-        Spinner spinner = signUpUserType;
+        final Spinner spinner = signUpUserType;
 
         // Spinner Drop down elements
         List<String> userType = new ArrayList<>();
@@ -67,23 +71,53 @@ public class Signup extends CommonActivity implements
         // attaching data adapter to spinner
         spinner.setAdapter(dataAdapter);
 
-        // Spinner element
-        Spinner spinnerService = signUpUserService;
+        /* SIGNUP USER TYPE SPINNER */
 
-        // Spinner Drop down elements
+
+        /* SIGNUP USER SERVICE SPINNER */
+
+        final Spinner spinnerService = signUpUserService;
+
         List<String> userService = new ArrayList<>();
         userService.add("Ambulance");
         userService.add("Fire");
         userService.add("Police");
 
-        // Creating adapter for spinner
-        ArrayAdapter<String> dataAdapterService = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userService);
+        final ArrayAdapter<String> dataAdapterService = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, userService);
 
-        // Drop down layout style - list view with radio button
         dataAdapterService.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
-        // attaching data adapter to spinner
         spinnerService.setAdapter(dataAdapterService);
+
+        /* SIGNUP USER SERVICE SPINNER */
+
+
+        /* SET LISTENER TO DROPDOWN */
+
+        signUpUserType.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                switch (position) {
+                    case 0:
+                        signUpUserService.setVisibility(View.GONE);
+//                        spinnerService.setAdapter(null);
+                        break;
+                    case 1:
+                        signUpUserService.setVisibility(View.VISIBLE);
+//                        spinnerService.setAdapter(dataAdapterService);
+                        break;
+                }
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        /* SET LISTENER TO DROPDOWN */
+
+
     }
 
     private void createAccount(String email, String password) {
