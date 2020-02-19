@@ -103,8 +103,6 @@ public class AddContact extends MainActivity implements
                                 String[] itemSeparated = item.split("\n");
 
                                 String contactId   = ((itemSeparated[0].split(":"))[1]).trim();
-                                String contactName = ((itemSeparated[1].split(":"))[1]).trim();
-                                String contactNumber  = ((itemSeparated[2].split(":"))[1]).trim();
 
                                 listShowContacts.remove(position);
                                 adapter.notifyDataSetChanged();
