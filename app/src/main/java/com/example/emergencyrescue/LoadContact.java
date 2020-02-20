@@ -56,7 +56,6 @@ public class LoadContact extends MainActivity implements
         saveContactBtn = (Button) findViewById(R.id.saveContactBtn);
 
 
-        listLoadContacts = new ArrayList<>();
         checkContactPermission();
 
 
@@ -126,10 +125,25 @@ public class LoadContact extends MainActivity implements
         });
     }
 
+
+
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("hasBackPressed",0);
+        setResult(this.RESULT_CANCELED,returnIntent);
+        Toast.makeText(this,"test",Toast.LENGTH_SHORT).show();
+        finish();
+    }
+
+
+
+
     /* CODE FOR DISPLAY CONACTS FROM PHONE */
 
     private void displayContacts() {
 
+        listLoadContacts = new ArrayList<>();
 
         ContentResolver resolver = getContentResolver();
 
@@ -183,6 +197,9 @@ public class LoadContact extends MainActivity implements
                     displayContacts();
 
                 } else {
+                    Intent returnIntent = new Intent();
+                    returnIntent.putExtra("hasBackPressed",0);
+                    setResult(this.RESULT_CANCELED,returnIntent);
                     finish();
                 }
                 return;
@@ -190,36 +207,6 @@ public class LoadContact extends MainActivity implements
         }
     }
 
-
-    /* CODE FOR CHECKING AND GETIING CONTACTS PERMISSION */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//    @Override
-//    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-//                                           int[] grantResults) {
-//        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
-//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-//                displayContacts();
-//            } else {
-//                Toast.makeText(this, "Until you grant the permission, we canot display the names", Toast.LENGTH_SHORT).show();
-//                finish();
-//            }
-//        }
-//    }
 
     /* CODE FOR CHECKING AND GETIING CONTACTS PERMISSION */
 

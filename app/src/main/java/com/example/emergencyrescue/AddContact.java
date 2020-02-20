@@ -168,6 +168,13 @@ public class AddContact extends MainActivity implements
         /* CODE FOR START ACTIVITY LOAD_CONTACT */
     }
 
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        dreference.removeEventListener(mValueListner);
+        dreference.removeEventListener(mChildListner);
+    }
+
 
     /* CODE TO DESTROY VALUE EVENT LISTENER */
 
