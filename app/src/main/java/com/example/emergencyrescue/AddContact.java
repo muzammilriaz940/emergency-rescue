@@ -44,7 +44,6 @@ public class AddContact extends MainActivity implements
 
     private ValueEventListener mValueListner;
     private ChildEventListener mChildListner;
-    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
 
 
     @Override
@@ -63,7 +62,6 @@ public class AddContact extends MainActivity implements
         dreference = FirebaseDatabase.getInstance().getReference("EmergencyContacts");
         dreference = dreference.child(currentUserId);
 
-        showContacts();
 
 
         /* CODE FOR FETCHING DATA AGAINST USER WHEN USER COME TO ADD CONTACT */
@@ -125,8 +123,6 @@ public class AddContact extends MainActivity implements
 
                 return myQuittingDialogBox;
             }
-
-
         });
 
 
@@ -165,36 +161,12 @@ public class AddContact extends MainActivity implements
                 dreference.removeEventListener(mValueListner);
                 Intent intent = new Intent(AddContact.this, LoadContact.class);
                 startActivityForResult(intent, 1);
+
             }
         });
 
         /* CODE FOR START ACTIVITY LOAD_CONTACT */
     }
-
-
-    private void showContacts() {
-        // Check the SDK version and whether the permission is already granted or not.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_CONTACTS}, PERMISSIONS_REQUEST_READ_CONTACTS);
-            //After this point you wait for callback in onRequestPermissionsResult(int, String[], int[]) overriden method
-        } else {
-            // Android version is lesser than 6.0 or the permission is already granted.
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
-        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission is granted
-//                showContacts();
-            } else {
-                Toast.makeText(this, "Until you grant the permission, we canot display the names", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
 
 
     /* CODE TO DESTROY VALUE EVENT LISTENER */

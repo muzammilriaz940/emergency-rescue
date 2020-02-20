@@ -1,8 +1,11 @@
 package com.example.emergencyrescue;
 
+import android.Manifest;
 import android.content.ContentResolver;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.ContactsContract;
@@ -15,6 +18,8 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -34,17 +39,26 @@ public class LoadContact extends MainActivity implements
     private FirebaseAuth mAuthentication;
     private DatabaseReference mDatabaseReference;
 
+    private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         createDynamicView(R.layout.activity_load_contact, R.id.nav_addContact);
+
+
+
         mAuthentication = FirebaseAuth.getInstance();
         mDatabaseReference = FirebaseDatabase.getInstance().getReference();
 
         loadContactList = findViewById(R.id.loadContactList);
         saveContactBtn = (Button) findViewById(R.id.saveContactBtn);
-        displayContacts();
+
+
+        listLoadContacts = new ArrayList<>();
+        checkContactPermission();
+
 
         saveContactBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,9 +126,11 @@ public class LoadContact extends MainActivity implements
         });
     }
 
+    /* CODE FOR DISPLAY CONACTS FROM PHONE */
+
     private void displayContacts() {
 
-        listLoadContacts = new ArrayList<>();
+
         ContentResolver resolver = getContentResolver();
 
         Cursor cursor = resolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null,
@@ -138,6 +154,75 @@ public class LoadContact extends MainActivity implements
 
         loadContactList.setAdapter(new ArrayAdapter<>(LoadContact.this,android.R.layout.simple_list_item_multiple_choice, listLoadContacts));
     }
+
+    /* CODE FOR DISPLAY CONACTS FROM PHONE */
+
+
+
+    /* CODE FOR CHECKING AND GETIING CONTACTS PERMISSION */
+
+
+        private void checkContactPermission() {
+
+            if( Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_CONTACTS},
+                            PERMISSIONS_REQUEST_READ_CONTACTS);
+            } else {
+                displayContacts();
+            }
+
+        }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSIONS_REQUEST_READ_CONTACTS: {
+
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    displayContacts();
+
+                } else {
+                    finish();
+                }
+                return;
+            }
+        }
+    }
+
+
+    /* CODE FOR CHECKING AND GETIING CONTACTS PERMISSION */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+//                                           int[] grantResults) {
+//        if (requestCode == PERMISSIONS_REQUEST_READ_CONTACTS) {
+//            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+//                displayContacts();
+//            } else {
+//                Toast.makeText(this, "Until you grant the permission, we canot display the names", Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+//        }
+//    }
+
+    /* CODE FOR CHECKING AND GETIING CONTACTS PERMISSION */
+
 
     @Override
     public void onClick(View v) {
