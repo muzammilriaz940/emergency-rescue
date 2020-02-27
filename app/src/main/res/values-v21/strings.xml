@@ -5,4 +5,5 @@
     <string name="sensorTitle">Sensor Readings</string>
     <string name="signUpUserService">Service</string>
     <string name="profileUserService">Service</string>
+    <string name="HistoryTitle">History</string>
 </resources>

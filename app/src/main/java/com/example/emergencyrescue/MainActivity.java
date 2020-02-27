@@ -35,7 +35,9 @@ public class MainActivity extends CommonActivity
     NavigationView navigationView;
     public FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
+    String userTypeG = "Responder";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +49,7 @@ public class MainActivity extends CommonActivity
         setSupportActionBar(toolbar);
 
         drawer = findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
@@ -58,10 +59,11 @@ public class MainActivity extends CommonActivity
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String userName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
                 String userMobile = Objects.requireNonNull(dataSnapshot.child("mobile").getValue()).toString();
                 String userType = Objects.requireNonNull(dataSnapshot.child("userType").getValue()).toString();
+                userTypeG = userType;
                 String userService = Objects.requireNonNull(dataSnapshot.child("service").getValue()).toString();
                 String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
                 String autoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
@@ -125,6 +127,7 @@ public class MainActivity extends CommonActivity
 
     protected void createDynamicView(int layOutId, int navId) {
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        assert inflater != null;
         @SuppressLint("InflateParams")
         View contentView = inflater.inflate(layOutId, null, false);
         LinearLayout contentFrame;
@@ -140,6 +143,7 @@ public class MainActivity extends CommonActivity
                 startAnimatedActivity(new Intent(getApplicationContext(), Home.class));
                 break;
             case R.id.nav_history:
+                startAnimatedActivity(new Intent(getApplicationContext(), History.class));
                 break;
             case R.id.nav_addContact:
                 startAnimatedActivity(new Intent(getApplicationContext(), AddContact.class));

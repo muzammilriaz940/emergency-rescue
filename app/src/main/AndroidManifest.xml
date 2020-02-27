@@ -56,6 +56,11 @@
             android:label="@string/LoadContactTitle"
             android:theme="@style/AppTheme.NoActionBar"/>
         <activity
+            android:name=".History"
+            android:label="@string/HistoryTitle"
+            android:theme="@style/AppTheme.NoActionBar" />
+
+        <activity
             android:name=".SignIn"
             android:windowSoftInputMode="stateHidden">
             <intent-filter>
@@ -67,6 +72,7 @@
         <activity android:name=".SignOut" />
         <activity android:name=".MainActivity" />
         <activity android:name=".CommonActivity" />
+
     </application>
 
 </manifest>

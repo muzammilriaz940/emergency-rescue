@@ -28,7 +28,6 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,22 +49,19 @@ public class Home extends MainActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 String userType = Objects.requireNonNull(dataSnapshot.child("userType").getValue()).toString();
+                Switch s;
                 if(userType.equals("Responder")){
                     createDynamicView(R.layout.activity_home_responder, R.id.nav_home);
-                    locationCheck();
-                    updateCurrentLocation();
-                    Switch s = findViewById(R.id.switchResponder);
-                    if (s != null) {
-                        s.setOnCheckedChangeListener(Home.this);
-                    }
+                    s = findViewById(R.id.switchResponder);
                 }else{
                     createDynamicView(R.layout.activity_home, R.id.nav_home);
-                    locationCheck();
-                    updateCurrentLocation();
-                    Switch s = findViewById(R.id.switch1);
-                    if (s != null) {
-                        s.setOnCheckedChangeListener(Home.this);
-                    }
+                    s = findViewById(R.id.switch1);
+                }
+
+                locationCheck();
+                updateCurrentLocation();
+                if (s != null) {
+                    s.setOnCheckedChangeListener(Home.this);
                 }
             }
             @Override
@@ -155,10 +151,8 @@ public class Home extends MainActivity
                 markerOptions.title("Current Position");
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_MAGENTA));
                 mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
-
                 //move map camera
                 mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(location.getLatitude(), location.getLongitude()), 16.0f));
-
             }
         }
     };
@@ -184,8 +178,6 @@ public class Home extends MainActivity
                         })
                         .create()
                         .show();
-
-
             } else {
                 ActivityCompat.requestPermissions(this,
                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
@@ -206,7 +198,6 @@ public class Home extends MainActivity
                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     mGoogleMap.setMyLocationEnabled(true);
                 }
-
             } else {
                 Toast.makeText(this, "Permission denied...", Toast.LENGTH_LONG).show();
             }
@@ -239,15 +230,23 @@ public class Home extends MainActivity
     }
 
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         View parentLayout = findViewById(R.id.content_frame);
         if(isChecked) {
-            mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("1");
-            Snackbar.make(parentLayout, "Auto monitoring activated!", Snackbar.LENGTH_LONG).show();
+            if(userTypeG.equals("User")){
+                mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("1");
+                Snackbar.make(parentLayout, "Auto monitoring activated!", Snackbar.LENGTH_LONG).show();
+            }else{
+                mDatabase.child("Users").child(user.getUid()).child("isOnline").setValue("1");
+                Snackbar.make(parentLayout, "Online status activated!", Snackbar.LENGTH_LONG).show();
+            }
         } else {
-            mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("0");
-            Snackbar.make(parentLayout, "Auto monitoring deactivated!", Snackbar.LENGTH_LONG).show();
+            if(userTypeG.equals("User")){
+                mDatabase.child("Users").child(user.getUid()).child("autoMonitoring").setValue("0");
+                Snackbar.make(parentLayout, "Auto monitoring deactivated!", Snackbar.LENGTH_LONG).show();
+            }else{
+                mDatabase.child("Users").child(user.getUid()).child("isOnline").setValue("0");
+                Snackbar.make(parentLayout, "Online status deactivated!", Snackbar.LENGTH_LONG).show();
+            }
         }
     }
 }
