@@ -4,10 +4,15 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -28,6 +33,12 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,6 +50,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -48,8 +60,18 @@ public class CommonActivity extends AppCompatActivity
         implements SensorEventListener {
 
     @VisibleForTesting
+    LocationRequest mLocationRequest;
+    Location mLastLocation;
+    Marker mCurrLocationMarker;
+    FusedLocationProviderClient mFusedLocationClient;
+    GoogleMap mGoogleMap;
+    SupportMapFragment mapFrag;
     public ProgressDialog mProgressDialog;
     AlertDialog dialog;
+    public double currentLatitude;
+    public double currentLongitude;
+    Geocoder geocoder;
+    List<Address> addresses;
     Vibrator vibrator;
     MediaPlayer mp;
     @Override
@@ -134,6 +156,31 @@ public class CommonActivity extends AppCompatActivity
             }
         });
         return builder;
+    }
+
+    public void locationCheck() {
+        final LocationManager manager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        if (manager != null && !manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            buildAlertMessageNoGps();
+        }
+    }
+
+    private void buildAlertMessageNoGps() {
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("This app requires access to the location.")
+                .setCancelable(false)
+                .setPositiveButton("Turn on", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(final DialogInterface dialog, final int id) {
+                        dialog.cancel();
+                    }
+                });
+        final AlertDialog alert = builder.create();
+        alert.show();
     }
 
     @IgnoreExtraProperties
@@ -249,9 +296,21 @@ public class CommonActivity extends AppCompatActivity
         DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         if (user != null) {
             try {
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue("JHJs673v45");
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue("12321.654");
-                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue("987893.432");
+                locationCheck();
+                geocoder = new Geocoder(this, Locale.getDefault());
+                addresses = geocoder.getFromLocation(currentLatitude, currentLongitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+
+                String currentAddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                /*String city = addresses.get(0).getLocality();
+                String state = addresses.get(0).getAdminArea();
+                String country = addresses.get(0).getCountryName();
+                String postalCode = addresses.get(0).getPostalCode();
+                String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL*/
+
+
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue(currentAddress);
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue(currentLatitude);
+                mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue(currentLongitude);
                 View parentLayout = findViewById(R.id.content_frame);
                 Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
                 stopWarning();
