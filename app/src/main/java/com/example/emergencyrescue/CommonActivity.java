@@ -81,6 +81,10 @@ public class CommonActivity extends AppCompatActivity
     List<Address> addresses;
     Vibrator vibrator;
     MediaPlayer mp;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    FirebaseUser user = mAuth.getCurrentUser();
+    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -138,7 +142,6 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public boolean isConnected(Context context) {
-
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo netinfo = cm != null ? cm.getActiveNetworkInfo() : null;
 
@@ -227,8 +230,6 @@ public class CommonActivity extends AppCompatActivity
             double gForceValue = (a / 9.81);
 
             if(gForceValue > 4) {
-                FirebaseAuth mAuth = FirebaseAuth.getInstance();
-                FirebaseUser user = mAuth.getCurrentUser();
                 String userId = user.getUid();
                 DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
                 reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -315,9 +316,6 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void sendEmergencyNotification(){
-        FirebaseAuth mAuth = FirebaseAuth.getInstance();
-        FirebaseUser user = mAuth.getCurrentUser();
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
         if (user != null) {
             try {
                 locationCheck();
@@ -350,7 +348,7 @@ public class CommonActivity extends AppCompatActivity
         JSONObject json = new JSONObject();
         try {
             JSONObject userData=new JSONObject();
-            userData.put("key1","your title");
+            userData.put("userId", user.getUid());
             userData.put("body","your body");
 
             json.put("data",userData);
