@@ -348,9 +348,7 @@ public class CommonActivity extends AppCompatActivity
         JSONObject json = new JSONObject();
         try {
             JSONObject userData=new JSONObject();
-            userData.put("userId", user.getUid());
-            userData.put("body","your body");
-
+            userData.put("pickUpRequestUserId", user.getUid());
             json.put("data",userData);
             json.put("to",  "d7i5rk1_wHQ:APA91bEVeew0_ba0qqk1uimm-XBAp4MQaXEeN1DTfhIt0KO6TNAOTEj7h0LFWasYE_XNr_235W1U9hefZNh2N8A45vsrUtXC5XCVOhhBSWbzGHPLLwa2QkYTXqkotJ9sc_1r7P3I3EwL");
         }

@@ -20,6 +20,7 @@ public class FCM extends FirebaseMessagingService {
     public void onMessageReceived(RemoteMessage message) {
         //On click of notification it redirect to this Activity
         Intent intent = new Intent(this, AccidentAlert.class);
+        intent.putExtra("pickUpRequestUserId", message.getData().get("pickUpRequestUserId"));
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_ONE_SHOT);
 
@@ -27,7 +28,8 @@ public class FCM extends FirebaseMessagingService {
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(this)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Emergency Alert")
-                .setContentText(message.getData().get("key1"))
+                //.setContentText(message.getData().get("key1"))
+                .setContentText("Click to see the details!")
                 .setAutoCancel(true)
                 .setSound(soundUri)
                 .setContentIntent(pendingIntent);
