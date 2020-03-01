@@ -24,8 +24,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Switch;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -33,13 +31,17 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
-import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -50,8 +52,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.IgnoreExtraProperties;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -290,6 +297,23 @@ public class CommonActivity extends AppCompatActivity
         startWarning();
     }
 
+    public void startWarning(){
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(15000);
+        mp = MediaPlayer.create(this, R.raw.warning);
+        mp.start();
+        mp.setLooping(true);
+    }
+
+    public void stopWarning(){
+        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.cancel();
+        mp = MediaPlayer.create(this, R.raw.warning);
+        mp.stop();
+        mp.reset();
+        mp.setLooping(false);
+    }
+
     public void sendEmergencyNotification(){
         FirebaseAuth mAuth = FirebaseAuth.getInstance();
         FirebaseUser user = mAuth.getCurrentUser();
@@ -307,11 +331,11 @@ public class CommonActivity extends AppCompatActivity
                 String postalCode = addresses.get(0).getPostalCode();
                 String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL*/
 
-
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("g").setValue(currentAddress);
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("0").setValue(currentLatitude);
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue(currentLongitude);
                 View parentLayout = findViewById(R.id.content_frame);
+                sendFCM();
                 Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
                 stopWarning();
             } catch (Exception e) {
@@ -320,20 +344,41 @@ public class CommonActivity extends AppCompatActivity
         }
     }
 
-    public void startWarning(){
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.vibrate(15000);
-        mp = MediaPlayer.create(this, R.raw.warning);
-        mp.start();
-        mp.setLooping(true);
-    }
+    public void sendFCM(){
+        RequestQueue MyRequestQueue = Volley.newRequestQueue(this);
 
-    public void stopWarning(){
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        vibrator.cancel();
-        mp = MediaPlayer.create(this, R.raw.warning);
-        mp.stop();
-        mp.reset();
-        mp.setLooping(false);
+        JSONObject json = new JSONObject();
+        try {
+            JSONObject userData=new JSONObject();
+            userData.put("key1","your title");
+            userData.put("body","your body");
+
+            json.put("data",userData);
+            json.put("to",  "d7i5rk1_wHQ:APA91bEVeew0_ba0qqk1uimm-XBAp4MQaXEeN1DTfhIt0KO6TNAOTEj7h0LFWasYE_XNr_235W1U9hefZNh2N8A45vsrUtXC5XCVOhhBSWbzGHPLLwa2QkYTXqkotJ9sc_1r7P3I3EwL");
+        }
+        catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", json, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                //Log.i("onResponse", "" + response.toString());
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        }) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("Authorization", "key=AAAAnLYPSh4:APA91bHQewdT4UEQa7KrKvLKZtZMI6K5k0g3tp4bpAVoWqorSBH1Y-57UjMNxo2jWsy3HHlFmTlk1C6pKWygXBSR4ZfDiSkYPWSZsrAScNBU6ooTN_gGKIQy4Bmhyneo3Kt1uLd9AcZb");
+                params.put("Content-Type", "application/json");
+                return params;
+            }
+        };
+        MyRequestQueue.add(jsonObjectRequest);
     }
 }

@@ -33,6 +33,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.List;
 import java.util.Objects;
@@ -43,6 +44,7 @@ public class Home extends MainActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase.child("Users").child(user.getUid()).child("token").setValue(FirebaseInstanceId.getInstance().getToken());
         String userId = user.getUid();
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
         reference.child(userId).addListenerForSingleValueEvent(new ValueEventListener() {

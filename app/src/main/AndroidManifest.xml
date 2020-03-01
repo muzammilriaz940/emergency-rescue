@@ -59,6 +59,10 @@
             android:name=".History"
             android:label="@string/HistoryTitle"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".AccidentAlert"
+            android:label="@string/HistoryTitle"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name=".SignIn"
@@ -72,7 +76,11 @@
         <activity android:name=".SignOut" />
         <activity android:name=".MainActivity" />
         <activity android:name=".CommonActivity" />
-
+        <service android:name=".FCM" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
