@@ -148,9 +148,6 @@ public class MainActivity extends CommonActivity
             case R.id.nav_addContact:
                 startAnimatedActivity(new Intent(getApplicationContext(), AddContact.class));
                 break;
-            case R.id.nav_sensor:
-                startAnimatedActivity(new Intent(getApplicationContext(), SensorReading.class));
-                break;
             case R.id.nav_profile:
                 startAnimatedActivity(new Intent(getApplicationContext(), Auth.class));
                 break;

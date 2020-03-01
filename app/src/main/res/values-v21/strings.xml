@@ -6,4 +6,6 @@
     <string name="signUpUserService">Service</string>
     <string name="profileUserService">Service</string>
     <string name="HistoryTitle">History</string>
+    <string name="AccidentAlert">Emergency Alert</string>
+    <string name="NavigateToAccident">Navigate To Accident</string>
 </resources>
