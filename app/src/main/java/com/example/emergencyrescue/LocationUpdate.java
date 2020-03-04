@@ -71,8 +71,10 @@ public class LocationUpdate extends Service {
                     FirebaseAuth mAuth = FirebaseAuth.getInstance();
                     FirebaseUser user = mAuth.getCurrentUser();
                     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                    mDatabase.child("Users").child(user.getUid()).child("lat").setValue(lastLocation.getLatitude());
-                    mDatabase.child("Users").child(user.getUid()).child("long").setValue(lastLocation.getLongitude());
+                    if (user != null) {
+                        mDatabase.child("Users").child(user.getUid()).child("lat").setValue(lastLocation.getLatitude());
+                        mDatabase.child("Users").child(user.getUid()).child("long").setValue(lastLocation.getLongitude());
+                    }
                 }
             }
         };
