@@ -3,6 +3,7 @@ package com.example.emergencyrescue;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,8 +16,10 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
-public class AccidentAlert extends MainActivity implements
-        View.OnClickListener  {
+public class AccidentAlert extends MainActivity  {
+    public String pickUpAddress;
+    public double pickUpLat;
+    public double pickUpLong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,15 +28,17 @@ public class AccidentAlert extends MainActivity implements
         View parentLayout = findViewById(R.id.content_frame);
         parentLayout.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
 
-        String pickUpRequestUserId = getIntent().getStringExtra("pickUpRequestUserId");
+        final String pickUpRequestUserId = getIntent().getStringExtra("pickUpRequestUserId");
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("PickUpRequest");
-        reference.child("DC614w9DqtVeGKhxGqvfA1Z5qh63").addListenerForSingleValueEvent(new ValueEventListener() {
+        reference.child(pickUpRequestUserId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String g = Objects.requireNonNull(dataSnapshot.child("g").getValue()).toString();
+                pickUpAddress = Objects.requireNonNull(dataSnapshot.child("g").getValue()).toString();
+                pickUpLat = (Double)  dataSnapshot.child("l").child("0").getValue();
+                pickUpLong = (Double)  dataSnapshot.child("l").child("1").getValue();
                 TextView victimCurrentAddress = findViewById(R.id.victimCurrentAddress);
                 if(victimCurrentAddress != null) {
-                    victimCurrentAddress.setText(g);
+                    victimCurrentAddress.setText(pickUpAddress);
                 }
             }
             @Override
@@ -41,11 +46,18 @@ public class AccidentAlert extends MainActivity implements
                 //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
             }
         });
-    }
 
-    @Override
-    public void onClick(View v) {
-        Intent i = new Intent(this, NavigateToAccident.class);
-        startActivity(i);
+        Button navigateToAccidentBtn = findViewById(R.id.navigateToAccidentBtn);
+        navigateToAccidentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AccidentAlert.this, NavigateToAccident.class);
+                intent.putExtra("pickUpRequestUserId", pickUpRequestUserId);
+                intent.putExtra("pickUpAddress", pickUpAddress);
+                intent.putExtra("pickUpLat", pickUpLat);
+                intent.putExtra("pickUpLong", pickUpLong);
+                startActivity(intent);
+            }
+        });
     }
 }

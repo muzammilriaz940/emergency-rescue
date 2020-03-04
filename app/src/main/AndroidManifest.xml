@@ -74,11 +74,13 @@
         <activity android:name=".SignOut" />
         <activity android:name=".MainActivity" />
         <activity android:name=".CommonActivity" />
+
         <service android:name=".FCM" android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT"/>
             </intent-filter>
         </service>
+        <service android:name=".LocationUpdate" />
     </application>
 
 </manifest>

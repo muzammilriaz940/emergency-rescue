@@ -41,7 +41,6 @@
         android:background="#2196F3"
         android:foregroundGravity="center"
         android:gravity="center"
-        android:onClick="onClick"
         android:text="NAVIGATE"
         android:textColor="@android:color/white"
         android:textSize="20sp" />

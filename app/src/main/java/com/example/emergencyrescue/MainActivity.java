@@ -41,6 +41,7 @@ public class MainActivity extends CommonActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        startService(new Intent(this, LocationUpdate.class));
         setContentView(R.layout.activity_main);
         if(!isConnected(this)) {
             buildDialog(this, "No Internet Connection", "Please check your connection.").show();
