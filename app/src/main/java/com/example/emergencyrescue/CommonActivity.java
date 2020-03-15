@@ -307,9 +307,7 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void stopWarning(){
-        vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
         vibrator.cancel();
-        mp = MediaPlayer.create(this, R.raw.warning);
         mp.stop();
         mp.reset();
         mp.setLooping(false);

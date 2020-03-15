@@ -2,7 +2,6 @@ package com.example.emergencyrescue;
 
 import android.Manifest;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Build;
@@ -61,6 +60,16 @@ public class Home extends MainActivity
                 }else{
                     createDynamicView(R.layout.activity_home, R.id.nav_home);
                     s = findViewById(R.id.switch1);
+                }
+
+                if(s != null) {
+                    if (autoMonitoring.equals("1") && userTypeG.equals("User")) {
+                        s.setChecked(true);
+                    }else if (isOnline.equals("1") && userTypeG.equals("Responder")) {
+                        s.setChecked(true);
+                    } else {
+                        s.setChecked(false);
+                    }
                 }
 
                 locationCheck();

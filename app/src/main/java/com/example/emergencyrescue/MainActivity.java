@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.Switch;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -38,6 +37,9 @@ public class MainActivity extends CommonActivity
     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
 
     String userTypeG = "Responder";
+    String autoMonitoring = "0";
+    String isOnline = "0";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,15 +69,9 @@ public class MainActivity extends CommonActivity
                 userTypeG = userType;
                 String userService = Objects.requireNonNull(dataSnapshot.child("service").getValue()).toString();
                 String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
-                String autoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
-                Switch s = findViewById(R.id.switch1);
-                if(s != null) {
-                    if (autoMonitoring.equals("1")) {
-                        s.setChecked(true);
-                    } else {
-                        s.setChecked(false);
-                    }
-                }
+                autoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
+                isOnline = Objects.requireNonNull(dataSnapshot.child("isOnline").getValue()).toString();
+
                 NavigationView navigationView = findViewById(R.id.nav_view);
                 View headerView = navigationView.getHeaderView(0);
 
