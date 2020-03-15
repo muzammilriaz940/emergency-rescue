@@ -25,11 +25,14 @@ public class History extends MainActivity implements
         reference.child(user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String accidentLocation = Objects.requireNonNull(dataSnapshot.child("g").getValue()).toString();
+                try{
+                    String accidentLocation = Objects.requireNonNull(dataSnapshot.child("g").getValue()).toString();
+                    final TextView accidentLocationView = findViewById(R.id.accidentLocation);
+                    if(accidentLocationView != null) {
+                        accidentLocationView.setText("Accident Location : "+accidentLocation);
+                    }
+                }catch (Exception e){
 
-                final TextView accidentLocationView = findViewById(R.id.accidentLocation);
-                if(accidentLocationView != null) {
-                    accidentLocationView.setText("Accident Location : "+accidentLocation);
                 }
             }
             @Override
