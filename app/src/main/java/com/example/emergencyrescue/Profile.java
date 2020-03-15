@@ -137,7 +137,6 @@ public class Profile extends MainActivity implements
         mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
         if(filePath != null){
             uploadImage();
-            //mDatabase.child("Users").child(userId).child("image").setValue(filePath);
         }
         if(userType.equals("user")) {
             mDatabase.child("Users").child(userId).child("service").setValue("");
@@ -277,7 +276,7 @@ public class Profile extends MainActivity implements
             progressDialog.show();
 
             // Defining the child of storageReference
-            StorageReference ref
+            final StorageReference ref
                     = storageReference
                     .child(
                             "images/"
@@ -293,7 +292,14 @@ public class Profile extends MainActivity implements
                                 public void onSuccess(
                                         UploadTask.TaskSnapshot taskSnapshot)
                                 {
-
+                                    ref.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
+                                    {
+                                        @Override
+                                        public void onSuccess(Uri downloadUrl)
+                                        {
+                                            mDatabase.child("Users").child(user.getUid()).child("image").setValue(downloadUrl.toString());
+                                        }
+                                    });
                                     // Image uploaded successfully
                                     // Dismiss dialog
                                     progressDialog.dismiss();
