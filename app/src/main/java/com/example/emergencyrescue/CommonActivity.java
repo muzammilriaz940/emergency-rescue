@@ -85,6 +85,7 @@ public class CommonActivity extends AppCompatActivity
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
     FirebaseUser user = mAuth.getCurrentUser();
     DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+    String victimName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -338,8 +339,8 @@ public class CommonActivity extends AppCompatActivity
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue(currentLongitude);
                 View parentLayout = findViewById(R.id.content_frame);
                 sendFCM();
-                sendSMS();
-                Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
+                sendSMS(currentLatitude, currentLongitude);
+                Snackbar.make(parentLayout, "Emergency notification/SMS has been sent to nearby responders/emergency contacts!", Snackbar.LENGTH_LONG).show();
                 stopWarning();
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
@@ -347,16 +348,27 @@ public class CommonActivity extends AppCompatActivity
         }
     }
 
-    public void sendSMS(){
+    public void sendSMS(final double currentLatitude, final double currentLongitude){
         final SmsManager smsManager = SmsManager.getDefault();
-        FirebaseDatabase.getInstance().getReference().child("EmergencyContacts").child(user.getUid())
+        FirebaseDatabase.getInstance().getReference().child("Users").child(user.getUid())
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                            String contactNumber = Objects.requireNonNull(snapshot.child("contactNumber").getValue()).toString();
-                            smsManager.sendTextMessage(contactNumber, null, "Emergency Alert", null, null);
-                        }
+                        victimName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
+                        final String smsAlertMessage = "Emergency Alert: "+victimName+" added you as emergency contact, help them by responding at "+currentLatitude+", "+currentLongitude;
+                        FirebaseDatabase.getInstance().getReference().child("EmergencyContacts").child(user.getUid())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                                            String contactNumber = Objects.requireNonNull(snapshot.child("contactNumber").getValue()).toString();
+                                            smsManager.sendTextMessage(contactNumber, null, smsAlertMessage, null, null);
+                                        }
+                                    }
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                    }
+                                });
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
