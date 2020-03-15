@@ -307,10 +307,15 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void stopWarning(){
-        vibrator.cancel();
-        mp.stop();
-        mp.reset();
-        mp.setLooping(false);
+        if(vibrator != null){
+            vibrator.cancel();
+        }
+
+        if(mp != null){
+            mp.stop();
+            mp.reset();
+            mp.setLooping(false);
+        }
     }
 
     public void sendEmergencyNotification(){
@@ -341,38 +346,50 @@ public class CommonActivity extends AppCompatActivity
     }
 
     public void sendFCM(){
-        RequestQueue MyRequestQueue = Volley.newRequestQueue(this);
+        FirebaseDatabase.getInstance().getReference().child("Users").orderByChild("userType").equalTo("Responder")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            String token = Objects.requireNonNull(snapshot.child("token").getValue()).toString();
 
-        JSONObject json = new JSONObject();
-        try {
-            JSONObject userData=new JSONObject();
-            userData.put("pickUpRequestUserId", user.getUid());
-            json.put("data",userData);
-            json.put("to",  "d7i5rk1_wHQ:APA91bEVeew0_ba0qqk1uimm-XBAp4MQaXEeN1DTfhIt0KO6TNAOTEj7h0LFWasYE_XNr_235W1U9hefZNh2N8A45vsrUtXC5XCVOhhBSWbzGHPLLwa2QkYTXqkotJ9sc_1r7P3I3EwL");
-        }
-        catch (JSONException e) {
-            e.printStackTrace();
-        }
+                            RequestQueue MyRequestQueue = Volley.newRequestQueue(CommonActivity.this);
+                            JSONObject json = new JSONObject();
+                            try {
+                                JSONObject userData=new JSONObject();
+                                userData.put("pickUpRequestUserId", user.getUid());
+                                json.put("data", userData);
+                                json.put("to", token);
+                            }
+                            catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", json, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                //Log.i("onResponse", "" + response.toString());
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", json, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    //Log.i("onResponse", "" + response.toString());
+                                }
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
 
-            }
-        }) {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("Authorization", "key=AAAAnLYPSh4:APA91bHQewdT4UEQa7KrKvLKZtZMI6K5k0g3tp4bpAVoWqorSBH1Y-57UjMNxo2jWsy3HHlFmTlk1C6pKWygXBSR4ZfDiSkYPWSZsrAScNBU6ooTN_gGKIQy4Bmhyneo3Kt1uLd9AcZb");
-                params.put("Content-Type", "application/json");
-                return params;
-            }
-        };
-        MyRequestQueue.add(jsonObjectRequest);
+                                }
+                            }) {
+                                @Override
+                                public Map<String, String> getHeaders() throws AuthFailureError {
+                                    Map<String, String> params = new HashMap<String, String>();
+                                    params.put("Authorization", "key=AAAAnLYPSh4:APA91bHQewdT4UEQa7KrKvLKZtZMI6K5k0g3tp4bpAVoWqorSBH1Y-57UjMNxo2jWsy3HHlFmTlk1C6pKWygXBSR4ZfDiSkYPWSZsrAScNBU6ooTN_gGKIQy4Bmhyneo3Kt1uLd9AcZb");
+                                    params.put("Content-Type", "application/json");
+                                    return params;
+                                }
+                            };
+                            MyRequestQueue.add(jsonObjectRequest);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
     }
 }
