@@ -83,6 +83,19 @@ public class Home extends MainActivity
                 //Toast.makeText(MainActivity.this, databaseError.toString(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
+        String permission = Manifest.permission.SEND_SMS;
+        if (ContextCompat.checkSelfPermission(Home.this, permission) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(Home.this, permission)) {
+                //This is called if user has denied the permission before
+                //In this case I am just asking the permission again
+                ActivityCompat.requestPermissions(Home.this, new String[]{permission}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+            } else {
+                ActivityCompat.requestPermissions(Home.this, new String[]{permission}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+            }
+        }
     }
 
     @Override

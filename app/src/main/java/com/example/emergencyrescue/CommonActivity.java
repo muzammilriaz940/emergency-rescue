@@ -19,6 +19,7 @@ import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Vibrator;
+import android.telephony.gsm.SmsManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -337,12 +338,30 @@ public class CommonActivity extends AppCompatActivity
                 mDatabase.child("PickUpRequest").child(user.getUid()).child("l").child("1").setValue(currentLongitude);
                 View parentLayout = findViewById(R.id.content_frame);
                 sendFCM();
+                sendSMS();
                 Snackbar.make(parentLayout, "Emergency notification is sent to nearby responders!", Snackbar.LENGTH_LONG).show();
                 stopWarning();
             } catch (Exception e) {
                 Toast.makeText(this, e.getMessage(), Toast.LENGTH_LONG).show();
             }
         }
+    }
+
+    public void sendSMS(){
+        final SmsManager smsManager = SmsManager.getDefault();
+        FirebaseDatabase.getInstance().getReference().child("EmergencyContacts").child(user.getUid())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                            String contactNumber = Objects.requireNonNull(snapshot.child("contactNumber").getValue()).toString();
+                            smsManager.sendTextMessage(contactNumber, null, "Emergency Alert", null, null);
+                        }
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
     }
 
     public void sendFCM(){
