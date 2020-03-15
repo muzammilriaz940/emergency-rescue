@@ -1,6 +1,5 @@
 package com.example.emergencyrescue;
 
-import androidx.annotation.NonNull;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -11,6 +10,9 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -212,6 +214,7 @@ public class Signup extends CommonActivity implements
             mDatabase.child("Users").child(userId).child("bloodGroup").setValue(bloodGroup);
             mDatabase.child("Users").child(userId).child("autoMonitoring").setValue("1");
             mDatabase.child("Users").child(userId).child("isOnline").setValue("0");
+            mDatabase.child("Users").child(userId).child("image").setValue("");
             if(userType.equals("User")) {
                 mDatabase.child("Users").child(userId).child("service").setValue("");
             }else{

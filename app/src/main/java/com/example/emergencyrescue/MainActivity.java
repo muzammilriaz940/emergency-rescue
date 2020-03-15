@@ -9,6 +9,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
@@ -16,6 +17,8 @@ import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -69,11 +72,20 @@ public class MainActivity extends CommonActivity
                 userTypeG = userType;
                 String userService = Objects.requireNonNull(dataSnapshot.child("service").getValue()).toString();
                 String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
+                String userImage = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
                 autoMonitoring = Objects.requireNonNull(dataSnapshot.child("autoMonitoring").getValue()).toString();
                 isOnline = Objects.requireNonNull(dataSnapshot.child("isOnline").getValue()).toString();
 
                 NavigationView navigationView = findViewById(R.id.nav_view);
                 View headerView = navigationView.getHeaderView(0);
+
+                if(userImage != null && !userImage.equals("")){
+                    ImageView navUserImage = findViewById(R.id.navUserImage);
+
+                    Glide.with(MainActivity.this)
+                            .load(userImage)
+                            .into(navUserImage);
+                }
 
                 TextView navUserName = headerView.findViewById(R.id.navUserName);
                 String navName = userName+" - "+userBloodGroup;

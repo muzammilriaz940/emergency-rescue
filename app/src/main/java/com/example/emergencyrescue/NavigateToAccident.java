@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.text.Html;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -17,6 +18,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.bumptech.glide.Glide;
 import com.example.emergencyrescue.directionhelpers.FetchURL;
 import com.example.emergencyrescue.directionhelpers.TaskLoadedCallback;
 import com.google.android.gms.location.LocationCallback;
@@ -66,8 +68,15 @@ public class NavigateToAccident extends MainActivity implements OnMapReadyCallba
                 String userName = Objects.requireNonNull(dataSnapshot.child("name").getValue()).toString();
                 String userMobile = Objects.requireNonNull(dataSnapshot.child("mobile").getValue()).toString();
                 String userBloodGroup = Objects.requireNonNull(dataSnapshot.child("bloodGroup").getValue()).toString();
+                String userImage = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
 
                 TextView victimInformationBox = findViewById(R.id.victimInformationBox);
+                ImageView victimImage = findViewById(R.id.victimImage);
+
+                Glide.with(NavigateToAccident.this)
+                        .load(userImage)
+                        .into(victimImage);
+
                 String information = "<b>Name</b>: "+userName;
                 information += "<br><b>Phone:</b> "+userMobile;
                 information += "<br><b>Blood Group:</b> "+userBloodGroup;
@@ -134,8 +143,8 @@ public class NavigateToAccident extends MainActivity implements OnMapReadyCallba
         mGoogleMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(5000); // two minute interval
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(10000); // two minute interval
+        mLocationRequest.setFastestInterval(10000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
 
         if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
