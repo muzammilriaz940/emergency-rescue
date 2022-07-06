@@ -1,2 +1,2 @@
 # emergency-rescue
-A native android mobile application which detects accidents and report to the nearest authorities.
+A android native mobile application which detects accidents and report to the nearest authorities.
